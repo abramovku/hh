@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'hh' => [
+        'api_url' => env('HH_API_URL'),
+        'api_auth_url' => env('HH_API_AUTH_URL'),
+        'client_id' => env('HH_CLIENT_ID'),
+        'client_secret' => env('HH_CLIENT_SECRET'),
+        'redirect_uri' => env('HH_REDIRECT_URI'),
+    ],
 ];

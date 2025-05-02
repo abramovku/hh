@@ -127,6 +127,21 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'hh' => [
+            'driver' => 'custom',
+            'via' => danielme85\LaravelLogToDB\LogToDbHandler::class,
+            'level' => env('APP_LOG_LEVEL', 'debug'),
+            'name' => 'HHLog',
+            'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
+        ],
+
+        'estaff' => [
+            'driver' => 'custom',
+            'via' => danielme85\LaravelLogToDB\LogToDbHandler::class,
+            'level' => env('APP_LOG_LEVEL', 'debug'),
+            'name' => 'EstaffLog',
+            'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
+        ],
     ],
 
 ];

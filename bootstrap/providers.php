@@ -2,4 +2,5 @@
 
 return [
     App\Providers\AppServiceProvider::class,
+    App\Services\HH\HHServiceProvider::class,
 ];
