@@ -102,8 +102,8 @@ class HHClient
      */
     public function post(string $requestUrl, array $data, bool $auth = false): array
     {
+        $requestUrl = $this->apiUrl . $requestUrl;
         if ($auth === false) {
-            $requestUrl = $this->apiUrl . $requestUrl;
             $data = (!empty($data)) ? ['json' => $data] : [];
         } else {
             $data = ['form_params' => $data];
