@@ -68,7 +68,7 @@ class HHClient
         throw new \Exception('Set hh config - wrong params');
     }
 
-    public function auth($code = false)
+    public function auth($code = false): void
     {
         $data = [
             'client_id' => $this->clientId,
@@ -83,7 +83,7 @@ class HHClient
             $data['grant_type'] = 'refresh_token';
             $data['refresh_token'] = $settings['refresh_token'];
         }
-        $newAuthData = $this->post('token', $data, true);
+        $newAuthData = $this->post('/token', $data, true);
         $this->setConfig($newAuthData);
     }
 
