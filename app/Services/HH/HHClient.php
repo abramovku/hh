@@ -2,14 +2,13 @@
 
 namespace App\Services\HH;
 
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class HHClient
 {
-    private Client $client;
+    private $client;
     private string $token;
     private int $tries;
     private string $clientId;
@@ -30,12 +29,14 @@ class HHClient
             $this->token = $settings['access_token'];
         }
 
-        $this->client = new Client([
+        $clientParams = [
             'curl' => [
                 CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false
+                CURLOPT_SSL_VERIFYHOST => false,
             ],
-        ]);
+        ];
+
+        $this->client = app('GuzzleClient')($clientParams);
     }
 
     public function getConfig(): array
