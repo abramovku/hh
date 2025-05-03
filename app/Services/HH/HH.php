@@ -2,9 +2,11 @@
 
 namespace App\Services\HH;
 
+use Illuminate\Support\Facades\Log;
+
 class HH
 {
-    private  $HHClient;
+    private $HHClient;
 
     public function __construct($config)
     {
@@ -13,6 +15,14 @@ class HH
 
     public function baseInstall(string $code)
     {
-        if(!empty($code)) $this->HHClient->auth($code);
+        if (!empty($code)) $this->HHClient->auth($code);
+    }
+
+    public function getMe(): array
+    {
+        Log::channel('hh')->info(__FUNCTION__ . ' send');
+        $data = $this->HHClient->get('/me');
+        Log::channel('hh')->info(__FUNCTION__ . ' send');
+        return $data;
     }
 }
