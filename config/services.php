@@ -40,5 +40,6 @@ return [
         'client_id' => env('HH_CLIENT_ID'),
         'client_secret' => env('HH_CLIENT_SECRET'),
         'redirect_uri' => env('HH_REDIRECT_URI'),
+        'employer' => env('HH_EMPLOYER'),
     ],
 ];

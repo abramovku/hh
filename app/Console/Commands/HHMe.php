@@ -25,6 +25,6 @@ class HHMe extends Command
      */
     public function handle()
     {
-        $this->info(app('hh')->getMe());
+        dump(app('hh')->getMe());
     }
 }
