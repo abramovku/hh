@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('hh_meta', function (Blueprint $table) {
             $table->id();
-            $table->integer('response_id')->index();
+            $table->unsignedInteger('response_id')->index();
             $table->string('key');
             $table->text('value');
 
