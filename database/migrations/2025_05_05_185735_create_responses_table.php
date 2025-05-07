@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('managers', function (Blueprint $table) {
+        Schema::create('responses', function (Blueprint $table) {
             $table->id();
-            $table->integer('hh_id');
-            $table->string('email')->nullable();
+            $table->integer('response_id')->unique()->index();
+            $table->integer('vacancy_id');
+            $table->integer('manager_id');
+            $table->timestamp('sent_at')->nullable();
         });
     }
 
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('managers');
+        Schema::dropIfExists('responses');
     }
 };

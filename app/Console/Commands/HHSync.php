@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Manager;
+use App\Models\Response;
 use Illuminate\Console\Command;
 
 class HHSync extends Command
@@ -34,8 +35,20 @@ class HHSync extends Command
                 if ($manager['vacancies_count'] === 0) {
                     continue;
                 }
-                Manager::firstOrCreate(['hh_id' => $manager['id']], ['email' => $manager['email']]);
+                $vacancies = $hhService->getVacanciesByManager($manager['id']);
+                if (!empty($vacancies['items'])) {
+                    foreach ($vacancies['items'] as $vacancy) {
+                        $responces = $hhService->getResponcesByVacancy($vacancy['id']);
+                        foreach ($responces['items'] as $responce) {
+                            Response::firstOrCreate(['response_id' => $responce['id']], ['email' => $manager['email']]);
+                        }
+                    }
+                }
             }
         }
+
+
     }
+
+
 }
