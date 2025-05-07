@@ -37,7 +37,7 @@ class HH
 
     public function getVacanciesByManager(int $id): array
     {
-        Log::channel('hh')->info(__FUNCTION__ . ' send');
+        Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id]);
         $data = $this->HHClient->get('/employers/' . $this->config['employer']
             . '/vacancies/active?manager_id=' . $id);
         Log::channel('hh')->info(__FUNCTION__ . ' get');
@@ -46,8 +46,17 @@ class HH
 
     public function getResponcesByVacancy(int $id): array
     {
-        Log::channel('hh')->info(__FUNCTION__ . ' send');
+        Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id]);
         $data = $this->HHClient->get('/negotiations/response?vacancy_id=' . $id);
+        Log::channel('hh')->info(__FUNCTION__ . ' get');
+        return $data;
+    }
+
+    public function getResume(string $id, int $response_id, int $vacancy_id): array
+    {
+        Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id, 'response_id' => $response_id,
+            'vacancy_id' => $vacancy_id]);
+        $data = $this->HHClient->get('/resumes/' . $id . '?topic_id=' . $response_id . '&vacancy_id=' . $vacancy_id);
         Log::channel('hh')->info(__FUNCTION__ . ' get');
         return $data;
     }
