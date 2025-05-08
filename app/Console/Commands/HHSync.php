@@ -108,7 +108,7 @@ class HHSync extends Command
                                     if (!empty($fullResume['contact']) &&
                                         is_array($fullResume['contact'])
                                     ) {
-                                        foreach ($fullResume['citizenship']['contact'] as $contact) {
+                                        foreach ($fullResume['contact'] as $contact) {
                                             $type = $contact['type']['id'];
                                             if ($type === 'cell') {
                                                 $response->meta()->firstOrCreate(
