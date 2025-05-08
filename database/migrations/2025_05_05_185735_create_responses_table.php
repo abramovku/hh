@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('responses', function (Blueprint $table) {
             $table->integerIncrements('id');
-            $table->integer('response_id')->unique()->index();
-            $table->integer('vacancy_id');
-            $table->integer('manager_id');
+            $table->bigInteger('response_id')->unique()->index();
+            $table->bigInteger('vacancy_id');
+            $table->bigInteger('manager_id');
             $table->timestamp('sent_at')->nullable();
         });
     }
