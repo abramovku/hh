@@ -111,14 +111,18 @@ class HHSync extends Command
                                         foreach ($fullResume['contact'] as $contact) {
                                             $type = $contact['type']['id'];
                                             if ($type === 'cell') {
-                                                $response->meta()->firstOrCreate(
-                                                    ['key' => $type],
-                                                    ['value' => $contact['value']['formatted']]
-                                                );
+                                                if (!empty($contact['value']['formatted'])){
+                                                    $response->meta()->firstOrCreate(
+                                                        ['key' => $type],
+                                                        ['value' => $contact['value']['formatted']]
+                                                    );
+                                                }
                                             } elseif ($type === 'email') {
-                                                $response->meta()->firstOrCreate(
-                                                    ['key' => $type], ['value' => $contact['value']]
-                                                );
+                                                if (!empty($contact['value'])) {
+                                                    $response->meta()->firstOrCreate(
+                                                        ['key' => $type], ['value' => $contact['value']]
+                                                    );
+                                                }
                                             }
                                         }
                                     }
