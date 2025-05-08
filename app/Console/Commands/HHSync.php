@@ -141,6 +141,7 @@ class HHSync extends Command
                                         );
                                     }*/
                                 }
+                                sleep(1);
                             }
                         }
                     }
