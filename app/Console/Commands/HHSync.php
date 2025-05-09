@@ -39,10 +39,15 @@ class HHSync extends Command
                     foreach ($vacancies['items'] as $vacancy) {
                         $responses = $hhService->getResponcesByVacancy($vacancy['id']);
                         foreach ($responses['items'] as $item) {
-                            $response = Response::firstOrCreate(['response_id' => $item['id']],
-                                ['manager_id' => $manager['id'], 'vacancy_id' => $vacancy['id']]);
-                            $resume = $item['resume'];
-                            if ($response->sent_at === null) {
+                            $response = Response::where(['response_id', $item['id']])->first();
+                            if ($response === null) {
+                                $response = Response::create([
+                                    'response_id' => $item['id'],
+                                    'manager_id' => $manager['id'],
+                                    'vacancy_id' => $vacancy['id']
+                                ]);
+                                $resume = $item['resume'];
+
                                 if (!empty($resume['last_name']) ||
                                     !empty($resume['first_name']) ||
                                     !empty($resume['middle_name'])) {
@@ -56,52 +61,45 @@ class HHSync extends Command
                                     if (!empty($resume['middle_name'])) {
                                         $fio .= $resume['middle_name'];
                                     }
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'fio'],
-                                        ['value' => $fio]
+                                    $response->meta()->create(
+                                        ['key' => 'fio', 'value' => $fio]
                                     );
                                 }
 
                                 if (!empty($resume['age'])) {
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'age'],
-                                        ['value' => $resume['age']]
+                                    $response->meta()->create(
+                                        ['key' => 'age', 'value' => $resume['age']]
                                     );
                                 }
 
                                 if (!empty($resume['gender']['id'])) {
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'gender'],
-                                        ['value' => $resume['gender']['id']]
+                                    $response->meta()->create(
+                                        ['key' => 'gender', 'value' => $resume['gender']['id']]
                                     );
                                 }
 
                                 if (!empty($resume['title'])) {
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'title'],
-                                        ['value' => $resume['title']]
+                                    $response->meta()->create(
+                                        ['key' => 'title', 'value' => $resume['title']]
                                     );
                                 }
 
                                 if (!empty($resume['area']['title'])) {
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'location'],
-                                        ['value' => $resume['area']['title']]
+                                    $response->meta()->create(
+                                        ['key' => 'location', 'value' => $resume['area']['title']]
                                     );
                                 }
 
                                 if (!empty($resume['id'])) {
-                                    $response->meta()->firstOrCreate(
-                                        ['key' => 'resume_id'],
-                                        ['value' => $resume['id']]
+                                    $response->meta()->create(
+                                        ['key' => 'resume_id', 'value' => $resume['id']]
                                     );
 
                                     $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
 
                                     if (!empty($fullResume['citizenship']['name'])) {
-                                        $response->meta()->firstOrCreate(
-                                            ['key' => 'citizenship'],
-                                            ['value' => $fullResume['citizenship']['name']]
+                                        $response->meta()->create(
+                                            ['key' => 'citizenship', 'value' => $fullResume['citizenship']['name']]
                                         );
                                     }
 
@@ -112,15 +110,14 @@ class HHSync extends Command
                                             $type = $contact['type']['id'];
                                             if ($type === 'cell') {
                                                 if (!empty($contact['value']['formatted'])){
-                                                    $response->meta()->firstOrCreate(
-                                                        ['key' => $type],
-                                                        ['value' => $contact['value']['formatted']]
+                                                    $response->meta()->create(
+                                                        ['key' => $type, 'value' => $contact['value']['formatted']]
                                                     );
                                                 }
                                             } elseif ($type === 'email') {
                                                 if (!empty($contact['value'])) {
-                                                    $response->meta()->firstOrCreate(
-                                                        ['key' => $type], ['value' => $contact['value']]
+                                                    $response->meta()->create(
+                                                        ['key' => $type, 'value' => $contact['value']]
                                                     );
                                                 }
                                             }
@@ -141,7 +138,6 @@ class HHSync extends Command
                                         );
                                     }*/
                                 }
-                                sleep(1);
                             }
                         }
                     }
