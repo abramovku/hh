@@ -39,7 +39,7 @@ class HHSync extends Command
                     foreach ($vacancies['items'] as $vacancy) {
                         $responses = $hhService->getResponcesByVacancy($vacancy['id']);
                         foreach ($responses['items'] as $item) {
-                            $response = Response::where(['response_id', $item['id']])->first();
+                            $response = Response::where('response_id', $item['id'])->first();
                             if ($response === null) {
                                 $response = Response::create([
                                     'response_id' => $item['id'],
