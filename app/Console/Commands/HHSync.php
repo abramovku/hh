@@ -124,7 +124,7 @@ class HHSync extends Command
                                         }
                                     }
 
-                                    /*if (!empty($fullResume['education'])) {
+                                    if (!empty($fullResume['education'])) {
                                         $response->meta()->firstOrCreate(
                                             ['key' => 'education'],
                                             ['value' => json_encode($fullResume['education'])]
@@ -136,7 +136,7 @@ class HHSync extends Command
                                             ['key' => 'experience'],
                                             ['value' => json_encode($fullResume['experience'])]
                                         );
-                                    }*/
+                                    }
                                 }
                             }
                         }

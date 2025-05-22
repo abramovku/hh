@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('response_id')->index();
             $table->string('key');
-            $table->text('value');
+            $table->longText('value');
 
             $table->foreign('response_id')
                 ->references('id')
