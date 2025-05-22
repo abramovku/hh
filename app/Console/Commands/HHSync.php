@@ -125,16 +125,14 @@ class HHSync extends Command
                                     }
 
                                     if (!empty($fullResume['education'])) {
-                                        $response->meta()->firstOrCreate(
-                                            ['key' => 'education'],
-                                            ['value' => json_encode($fullResume['education'])]
+                                        $response->meta()->create(
+                                            ['key' => 'education', 'value' => json_encode($fullResume['education'])]
                                         );
                                     }
 
                                     if (!empty($fullResume['experience'])) {
-                                        $response->meta()->firstOrCreate(
-                                            ['key' => 'experience'],
-                                            ['value' => json_encode($fullResume['experience'])]
+                                        $response->meta()->create(
+                                            ['key' => 'experience', 'value' => json_encode($fullResume['experience'])]
                                         );
                                     }
                                 }
