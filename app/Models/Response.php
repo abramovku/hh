@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Response extends Model
 {
-    public $timestamps = false;
-
     /**
      * @var string
      */

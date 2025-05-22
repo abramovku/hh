@@ -17,6 +17,7 @@ return new class extends Migration
             $table->bigInteger('vacancy_id');
             $table->bigInteger('manager_id');
             $table->timestamp('sent_at')->nullable();
+            $table->timestamps();
         });
     }
 
