@@ -21,9 +21,10 @@ class EstaffClient
                 'Authorization' => 'Bearer ' . $config['token']
             ],
             'curl' => [
-                CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
                 CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
             ]
         ]);
     }
