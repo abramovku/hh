@@ -17,18 +17,13 @@ class EstaffClient
         $this->config = $config;
         $stack = HandlerStack::create(new StreamHandler());
         $this->client = app('GuzzleClient')([
-            'handler'      => $stack,
+            'handler' => $stack,
+            'http_errors'  => false,
             'base_uri' => $config['url'],
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $config['token']
             ],
-            'curl' => [
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
-            ]
         ]);
     }
 
