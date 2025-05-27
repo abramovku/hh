@@ -2,6 +2,7 @@
 
 namespace App\Services\Estaff;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\StreamHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\RequestException;
@@ -16,7 +17,7 @@ class EstaffClient
     {
         $this->config = $config;
         $stack = HandlerStack::create(new StreamHandler());
-        $this->client = app('GuzzleClient')([
+        $this->client = new Client([
             'handler' => $stack,
             'http_errors'  => false,
             'base_uri' => $config['url'],
