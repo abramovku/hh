@@ -42,4 +42,8 @@ return [
         'redirect_uri' => env('HH_REDIRECT_URI'),
         'employer' => env('HH_EMPLOYER'),
     ],
+    'estaff' => [
+        'url' => env('ESTAFF_API_URL'),
+        'token' => env('ESTAFF_TOKEN'),
+    ],
 ];

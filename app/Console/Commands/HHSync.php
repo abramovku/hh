@@ -41,6 +41,49 @@ class HHSync extends Command
                         foreach ($responses['items'] as $item) {
                             $response = Response::where('response_id', $item['id'])->first();
                             if ($response === null) {
+                                if (empty($resume['first_name'])) {
+                                    continue;
+                                }
+
+                                if (empty($resume['id'])) {
+                                    continue;
+                                }
+
+                                $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
+
+                                if (empty($fullResume)) {
+                                    continue;
+                                }
+
+                                $email = $cell = '';
+
+                                if (!empty($fullResume['contact']) &&
+                                    is_array($fullResume['contact'])
+                                ) {
+                                    foreach ($fullResume['contact'] as $contact) {
+                                        $type = $contact['type']['id'];
+                                        if ($type === 'cell') {
+                                            if (!empty($contact['value']['formatted'])){
+                                                $cell = $contact['value']['formatted'];
+                                                $response->meta()->create(
+                                                    ['key' => $type, 'value' => $contact['value']['formatted']]
+                                                );
+                                            }
+                                        } elseif ($type === 'email') {
+                                            if (!empty($contact['value'])) {
+                                                $email = $contact['value'];
+                                                $response->meta()->create(
+                                                    ['key' => $type, 'value' => $contact['value']]
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (empty($email) && empty($cell)) {
+                                    continue;
+                                }
+
                                 $response = Response::create([
                                     'response_id' => $item['id'],
                                     'manager_id' => $manager['id'],
@@ -48,21 +91,19 @@ class HHSync extends Command
                                 ]);
                                 $resume = $item['resume'];
 
-                                if (!empty($resume['last_name']) ||
-                                    !empty($resume['first_name']) ||
-                                    !empty($resume['middle_name'])) {
-                                    $fio = '';
-                                    if (!empty($resume['last_name'])) {
-                                        $fio .= $resume['last_name'] . ' ';
-                                    }
-                                    if (!empty($resume['first_name'])) {
-                                        $fio .= $resume['first_name'] . ' ';
-                                    }
-                                    if (!empty($resume['middle_name'])) {
-                                        $fio .= $resume['middle_name'];
-                                    }
+                                $response->meta()->create(
+                                    ['key' => 'first_name', 'value' => $resume['first_name']]
+                                );
+
+                                if (!empty($resume['last_name'])) {
                                     $response->meta()->create(
-                                        ['key' => 'fio', 'value' => $fio]
+                                        ['key' => 'last_name', 'value' => $resume['last_name']]
+                                    );
+                                }
+
+                                if (!empty($resume['middle_name'])) {
+                                    $response->meta()->create(
+                                        ['key' => 'middle_name', 'value' => $resume['middle_name']]
                                     );
                                 }
 
@@ -84,58 +125,49 @@ class HHSync extends Command
                                     );
                                 }
 
-                                if (!empty($resume['area']['title'])) {
+                                if (!empty($fullResume['area']['title'])) {
                                     $response->meta()->create(
-                                        ['key' => 'location', 'value' => $resume['area']['title']]
+                                        ['key' => 'location', 'value' => $fullResume['area']['title']]
                                     );
                                 }
 
-                                if (!empty($resume['id'])) {
+                                $response->meta()->create(
+                                    ['key' => 'resume_id', 'value' => $resume['id']]
+                                );
+
+
+                                if (!empty($fullResume['citizenship']['name'])) {
                                     $response->meta()->create(
-                                        ['key' => 'resume_id', 'value' => $resume['id']]
+                                        ['key' => 'citizenship', 'value' => $fullResume['citizenship']['name']]
                                     );
-
-                                    $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
-
-                                    if (!empty($fullResume['citizenship']['name'])) {
-                                        $response->meta()->create(
-                                            ['key' => 'citizenship', 'value' => $fullResume['citizenship']['name']]
-                                        );
-                                    }
-
-                                    if (!empty($fullResume['contact']) &&
-                                        is_array($fullResume['contact'])
-                                    ) {
-                                        foreach ($fullResume['contact'] as $contact) {
-                                            $type = $contact['type']['id'];
-                                            if ($type === 'cell') {
-                                                if (!empty($contact['value']['formatted'])){
-                                                    $response->meta()->create(
-                                                        ['key' => $type, 'value' => $contact['value']['formatted']]
-                                                    );
-                                                }
-                                            } elseif ($type === 'email') {
-                                                if (!empty($contact['value'])) {
-                                                    $response->meta()->create(
-                                                        ['key' => $type, 'value' => $contact['value']]
-                                                    );
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if (!empty($fullResume['education'])) {
-                                        $response->meta()->create(
-                                            ['key' => 'education', 'value' => json_encode($fullResume['education'])]
-                                        );
-                                    }
-
-                                    if (!empty($fullResume['experience'])) {
-                                        $response->meta()->create(
-                                            ['key' => 'experience', 'value' => json_encode($fullResume['experience'])]
-                                        );
-                                    }
                                 }
+
+                                if (!empty($fullResume['birth_date'])) {
+                                    $response->meta()->create(
+                                        ['key' => 'birth_date', 'value' => $fullResume['birth_date']]
+                                    );
+                                }
+
+                                $response->meta()->create(
+                                    ['key' => 'cell', 'value' => $cell]
+                                );
+
+                                $response->meta()->create(
+                                    ['key' => 'email', 'value' => $email]
+                                );
+
+                                if (!empty($fullResume['education'])) {
+                                    $response->meta()->create(
+                                        ['key' => 'education', 'value' => json_encode($fullResume['education'])]
+                                    );
+                                }
+
+                                if (!empty($fullResume['experience'])) {
+                                    $response->meta()->create(
+                                        ['key' => 'experience', 'value' => json_encode($fullResume['experience'])]
+                                    );
+                                }
+
                             }
                         }
                     }

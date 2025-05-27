@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -29,5 +30,10 @@ class Response extends Model
     public function meta(): HasMany
     {
         return $this->hasMany(HHMeta::class, 'response_id');
+    }
+
+    public function setSend(): void
+    {
+        $this->sent_at = Carbon::now();
     }
 }
