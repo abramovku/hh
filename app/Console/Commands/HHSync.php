@@ -41,6 +41,8 @@ class HHSync extends Command
                         foreach ($responses['items'] as $item) {
                             $response = Response::where('response_id', $item['id'])->first();
                             if ($response === null) {
+                                $resume = $item['resume'];
+
                                 if (empty($resume['first_name'])) {
                                     continue;
                                 }
@@ -89,7 +91,6 @@ class HHSync extends Command
                                     'manager_id' => $manager['id'],
                                     'vacancy_id' => $vacancy['id']
                                 ]);
-                                $resume = $item['resume'];
 
                                 $response->meta()->create(
                                     ['key' => 'first_name', 'value' => $resume['first_name']]
