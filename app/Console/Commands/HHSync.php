@@ -67,16 +67,10 @@ class HHSync extends Command
                                         if ($type === 'cell') {
                                             if (!empty($contact['value']['formatted'])){
                                                 $cell = $contact['value']['formatted'];
-                                                $response->meta()->create(
-                                                    ['key' => $type, 'value' => $contact['value']['formatted']]
-                                                );
                                             }
                                         } elseif ($type === 'email') {
                                             if (!empty($contact['value'])) {
                                                 $email = $contact['value'];
-                                                $response->meta()->create(
-                                                    ['key' => $type, 'value' => $contact['value']]
-                                                );
                                             }
                                         }
                                     }
@@ -149,13 +143,17 @@ class HHSync extends Command
                                     );
                                 }
 
-                                $response->meta()->create(
-                                    ['key' => 'cell', 'value' => $cell]
-                                );
+                                if (!empty($cell)) {
+                                    $response->meta()->create(
+                                        ['key' => 'cell', 'value' => $cell]
+                                    );
+                                }
 
-                                $response->meta()->create(
-                                    ['key' => 'email', 'value' => $email]
-                                );
+                                if (!empty($email)) {
+                                    $response->meta()->create(
+                                        ['key' => 'email', 'value' => $email]
+                                    );
+                                }
 
                                 if (!empty($fullResume['education'])) {
                                     $response->meta()->create(
@@ -168,7 +166,6 @@ class HHSync extends Command
                                         ['key' => 'experience', 'value' => json_encode($fullResume['experience'])]
                                     );
                                 }
-
                             }
                         }
                     }
