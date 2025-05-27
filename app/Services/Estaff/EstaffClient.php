@@ -19,6 +19,11 @@ class EstaffClient
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $config['token']
+            ],
+            'curl' => [
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_RETURNTRANSFER => true,
             ]
         ]);
     }

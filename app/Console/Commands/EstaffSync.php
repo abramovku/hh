@@ -30,8 +30,9 @@ class EstaffSync extends Command
         $EstaffService = app('estaff');
 
         $data = Response::whereNull('sent_at')->get()->groupBy('vacancy_id');
-        if (empty($responses)) {
+        if (empty($data)) {
             $this->info('there is no responses to send!');
+            return;
         }
 
         foreach ($data as $vacancy => $responses) {
