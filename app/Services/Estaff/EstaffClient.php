@@ -2,9 +2,6 @@
 
 namespace App\Services\Estaff;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\StreamHandler;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
@@ -16,10 +13,7 @@ class EstaffClient
     public function __construct(array $config)
     {
         $this->config = $config;
-        $stack = HandlerStack::create(new StreamHandler());
-        $this->client = new Client([
-            'handler' => $stack,
-            'http_errors'  => false,
+        $this->client = app('GuzzleClient')([
             'base_uri' => $config['url'],
             'headers' => [
                 'Content-Type' => 'application/json',
