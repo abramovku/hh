@@ -23,7 +23,7 @@ class Estaff
                 'eid' => $id
             ]
         ];
-        $data = $this->client->post('/vacancy/find', $params);
+        $data = $this->client->post('vacancy/find', $params);
         Log::channel('estaff')->info(__FUNCTION__ . ' get');
         return $data['vacancies'][0] ?? [];
     }
@@ -31,7 +31,7 @@ class Estaff
     public function addResponse(array $params): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
-        $data = $this->client->post('/candidate/add', $params);
+        $data = $this->client->post('candidate/add', $params);
         Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
         return $data;
     }
