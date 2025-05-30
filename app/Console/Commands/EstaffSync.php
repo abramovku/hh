@@ -41,14 +41,14 @@ class EstaffSync extends Command
                 continue;
             }
             foreach ($responses as $candidate) {
-                $EstaffService->addResponse($this->prepareCandidate($candidate));
+                $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
                 $candidate->setSend();
                 $candidate->save();
             }
         }
     }
 
-    private function prepareCandidate(Response $candidate): array
+    private function prepareCandidate(Response $candidate, array $vacancy): array
     {
         $last_name = $candidate->meta()->where('key', 'last_name')->first();
         $middle_name = $candidate->meta()->where('key', 'middle_name')->first();
@@ -147,6 +147,8 @@ class EstaffSync extends Command
                 }
             }
         }
+
+        $data['vacancy']['id'] = $vacancy['id'];
 
         return $data;
     }
