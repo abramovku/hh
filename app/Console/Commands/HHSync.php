@@ -31,7 +31,7 @@ class HHSync extends Command
 
         if (!empty($managers['items'])) {
             foreach ($managers['items'] as $manager) {
-                if ($manager['vacancies_count'] === 0) {
+                if ($manager['vacancies_count'] === 0 || $manager['vacancies_count'] === null ) {
                     continue;
                 }
                 $vacancies = $hhService->getVacanciesByManager($manager['id']);
