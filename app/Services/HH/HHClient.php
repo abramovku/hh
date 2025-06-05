@@ -133,7 +133,7 @@ class HHClient
         } catch (RequestException $e) {
             $code = $e->getCode();
             $response = json_decode($e->getResponse()->getBody(), true);
-            if ($code !== 401 || $this->tries > 0) {
+            if (($code !== 401 && $code !==404) || $this->tries > 0) {
                 Log::channel('hh')->error('HH Service http request failed',
                     ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
             }
@@ -142,6 +142,8 @@ class HHClient
                 $this->auth();
                 ++$this->tries;
                 return $this->request($type, $requestUrl, $data, $auth);
+            } elseif ($code == 404){
+                return [];
             } else {
                 throw $e;
             }
