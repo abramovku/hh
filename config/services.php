@@ -46,4 +46,10 @@ return [
         'url' => env('ESTAFF_API_URL'),
         'token' => env('ESTAFF_TOKEN'),
     ],
+    'twin' => [
+        'auth_url' => env('TWIN_AUTH_URL'),
+        'api_url' => env('TWIN_API_URL'),
+        'auth_email' => env('TWIN_AUTH_EMAIL'),
+        'auth_password' => env('TWIN_AUTH_PASSWORD'),
+    ],
 ];

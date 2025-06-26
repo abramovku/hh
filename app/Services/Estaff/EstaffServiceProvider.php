@@ -9,7 +9,7 @@ class EstaffServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('estaff', function () {
-            return new Estaff(config('services.estaff', []));
+            return new Twin(config('services.estaff', []));
         });
     }
 }

@@ -142,6 +142,14 @@ return [
             'name' => 'EstaffLog',
             'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
         ],
+
+        'twin' => [
+            'driver' => 'custom',
+            'via' => danielme85\LaravelLogToDB\LogToDbHandler::class,
+            'level' => env('APP_LOG_LEVEL', 'debug'),
+            'name' => 'TwinLog',
+            'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
+        ],
     ],
 
 ];
