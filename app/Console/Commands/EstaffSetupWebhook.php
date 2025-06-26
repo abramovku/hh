@@ -26,7 +26,7 @@ class EstaffSetupWebhook extends Command
     public function handle()
     {
         $EstaffService = app('estaff');
-        dd(route('estaff.webhook'));
+        $this->info(route('estaff.webhook'));
         $data = [
             "url" => route('estaff.webhook'),
             "name" => "Candidate states webhook",
@@ -35,7 +35,7 @@ class EstaffSetupWebhook extends Command
             ]
         ];
         $response = $EstaffService->setWebhook($data);
-        $this->info($response);
+        dd($response);
 
     }
 }
