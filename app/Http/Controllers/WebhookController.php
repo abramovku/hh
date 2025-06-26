@@ -6,10 +6,8 @@ use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
-    public function HHCallback()
+    public function estaffWebhooks(Request $request)
     {
-        $hh = app('hh');
-        $hh->baseInstall($_GET['code']);
-        return "Success!";
+
     }
 }

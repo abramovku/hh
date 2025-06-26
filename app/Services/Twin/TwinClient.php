@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Estaff;
+namespace App\Services\Twin;
 
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
