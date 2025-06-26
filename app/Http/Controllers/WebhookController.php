@@ -8,6 +8,6 @@ class WebhookController extends Controller
 {
     public function estaffWebhooks(Request $request)
     {
-
+        return response()->json('ok', 200);
     }
 }
