@@ -12,7 +12,7 @@ class Estaff
     public function __construct($config)
     {
         $this->config = $config;
-        $this->client = new TwinClient($config);
+        $this->client = new EstaffClient($config);
     }
 
     public function findVacancy(int $id): array
