@@ -27,7 +27,7 @@ class EstaffSetupWebhook extends Command
     {
         $EstaffService = app('estaff');
         $data = [
-            "url" => route('estaff.wehook'),
+            "url" => route('estaff.webhook'),
             "name" => "Candidate states webhook",
             "events" => [
                 "candidate_state"
