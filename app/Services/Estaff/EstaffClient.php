@@ -36,7 +36,7 @@ class EstaffClient
         } catch (RequestException $e) {
             $code = $e->getCode();
             $response = json_decode($e->getResponse()->getBody(), true);
-            Log::channel('estaff')->error('Twin Service http request failed',
+            Log::channel('estaff')->error('Estaff Service http request failed',
                 ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
             throw $e;
         }
