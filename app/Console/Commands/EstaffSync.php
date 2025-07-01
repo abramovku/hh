@@ -42,7 +42,9 @@ class EstaffSync extends Command
                 continue;
             }
             foreach ($responses as $candidate) {
-                $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
+                $EstaffCadidate = $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
+                $candidate->candidate_estaff = $EstaffCadidate['candidate']['id'];
+                $candidate->vacancy_estaff = $vacancyData['id'];
                 $candidate->setSend();
                 $candidate->save();
 

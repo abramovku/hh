@@ -51,5 +51,7 @@ return [
         'api_url' => env('TWIN_API_URL'),
         'auth_email' => env('TWIN_AUTH_EMAIL'),
         'auth_password' => env('TWIN_AUTH_PASSWORD'),
+        'chat_id' => env('TWIN_CHAT_ID'),
+        'bot_id' => env('TWIN_BOT_ID'),
     ],
 ];

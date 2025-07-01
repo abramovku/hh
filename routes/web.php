@@ -10,3 +10,4 @@ Route::get('/', function () {
 
 Route::get('hh-callback', [CallbackController::class, 'hhCallback']);
 Route::post('estaff-webhooks', [WebhookController::class, 'estaffWebhooks'])->name('estaff.webhook');
+Route::post('twin-webhooks', [WebhookController::class, 'twinWebhooks'])->name('twin.webhook');

@@ -150,6 +150,14 @@ return [
             'name' => 'TwinLog',
             'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
         ],
+
+        'app' => [
+            'driver' => 'custom',
+            'via' => danielme85\LaravelLogToDB\LogToDbHandler::class,
+            'level' => env('APP_LOG_LEVEL', 'debug'),
+            'name' => 'AppLog',
+            'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
+        ],
     ],
 
 ];

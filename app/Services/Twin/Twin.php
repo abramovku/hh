@@ -2,6 +2,7 @@
 
 namespace App\Services\Twin;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class Twin
@@ -15,8 +16,41 @@ class Twin
         $this->client = new TwinClient($config);
     }
 
-    public function sendMessage()
+    public function sendMessage(string $phone, int $id, array $vars)
     {
-        $this->client->post('message', []);
+        $today = Carbon::now()->format('Y-m-d');
+        $data = [
+            "messages" => [
+                [
+                    "useShortLinks" => false,
+                    "channels" => [
+                        "chat" => [
+                            "chatId" => $this->config['chat_id'],
+                            "botId" => $this->config['bot_id'],
+                            "messengerType" => "WHATSAPP",
+                            "chatSessionName" => "WA" . $today ,
+                            "provider" => "TWIN"
+                        ],
+                        "allowedTimeRanges" => [
+                            [
+                                "9:00:00",
+                                "22:00:00"
+                            ]
+                        ],
+                        "destinations" => [
+                            [
+                                "variables" => $vars,
+                                "phone" => "79788388242"//$phone
+                            ]
+                        ],
+                        "callbackData" => "$id",
+                        "callbackUrl" => route('twin.webhook')
+                    ]
+                ]
+            ]
+        ];
+
+        $this->client->post('message', $data);
     }
 }
+

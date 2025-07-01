@@ -28,6 +28,38 @@ class Estaff
         return $data['vacancies'][0] ?? [];
     }
 
+    public function getVacancy(int $id, array $fields = []): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        $result_fields = array_merge(["name", "division_id", "salary"], $fields);
+        $params = [
+            "vacancy" => [
+                "id" => $id
+            ],
+            "field_names" => $result_fields
+        ];
+
+        $data = $this->client->post('vacancy/get', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get');
+        return $data;
+    }
+
+    public function getCandidate(int $id, array $fields = []): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        $result_fields = array_merge(["mobile_phone"], $fields);
+        $params = [
+            "candidate" => [
+                "id" => $id
+            ],
+            "field_names" => $result_fields
+        ];
+
+        $data = $this->client->post('candidate/get', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get');
+        return $data;
+    }
+
     public function addResponse(array $params): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
