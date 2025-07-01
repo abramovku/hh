@@ -20,7 +20,9 @@ class Response extends Model
         'response_id',
         'vacancy_id',
         'manager_id',
-        'sent_at'
+        'sent_at',
+        'vacancy_estaff',
+        'candidate_estaff',
     ];
 
     protected $casts = [
