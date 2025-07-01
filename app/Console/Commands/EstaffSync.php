@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\StartTwinConversation;
 use App\Models\Response;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -44,6 +45,8 @@ class EstaffSync extends Command
                 $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
                 $candidate->setSend();
                 $candidate->save();
+
+                dispatch(new StartTwinConversation($candidate->id));
             }
         }
     }
