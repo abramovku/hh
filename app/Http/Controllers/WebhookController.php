@@ -12,6 +12,7 @@ class WebhookController extends Controller
         Log::channel('estaff')->info("Webhook received", $request->all());
 
         //разбор хука если статус 32 то шлем в твин
+        event_type_32
 
         return response()->json('ok', 200);
     }
