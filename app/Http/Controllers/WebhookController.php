@@ -13,7 +13,7 @@ class WebhookController extends Controller
     public function estaffWebhooks(EstaffWebhook $request)
     {
         $data = $request->all();
-        Log::channel('estaff')->info("Webhook received", );
+        Log::channel('estaff')->info("Webhook received", $data);
 
         if ($data['event_type'] === 'candidate_state' && $data['data']['state_id'] === 'event_type_32') {
             dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
