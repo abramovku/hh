@@ -48,7 +48,6 @@ class StartTwinConversation implements ShouldQueue
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
 
         $TwinService->sendMessage($phone, $candidate->candidate_estaff, $vars);
-        Log::channel('app')->info("WHATSAPP message created", ['candidate_id'
-        => $candidate->candidate_estaff]);
+        Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $candidate->candidate_estaff]);
     }
 }

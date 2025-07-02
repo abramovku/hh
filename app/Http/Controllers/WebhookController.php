@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EstaffWebhook;
+use App\Http\Requests\TwinTextWebhook;
 use App\Jobs\StartTwinManualConversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -22,11 +23,9 @@ class WebhookController extends Controller
         return response()->json('ok', 200);
     }
 
-    public function twinWebhooks(Request $request)
+    public function twinWebhooks(TwinTextWebhook $request)
     {
         Log::channel('twin')->info("Webhook received", $request->all());
-
-
 
         return response()->json('ok', 200);
     }
