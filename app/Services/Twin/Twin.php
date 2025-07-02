@@ -18,6 +18,7 @@ class Twin
 
     public function sendMessage(string $phone, int $id, array $vars)
     {
+        Log::channel('twin')->info(__FUNCTION__ . ' send', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
         $today = Carbon::now()->format('Y-m-d');
         $data = [
             "messages" => [
@@ -50,7 +51,9 @@ class Twin
             ]
         ];
 
-        $this->client->post('message', $data);
+        $data = $this->client->post('message', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $data);
+        return $data;
     }
 }
 

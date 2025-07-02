@@ -7,17 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class StartTwinConversation implements ShouldQueue
+class StartTwinManualConversation implements ShouldQueue
 {
     use Queueable;
 
-    private int $id;
+    private int $vacancy;
+    private int $candidate;
     /**
      * Create a new job instance.
      */
-    public function __construct(int $id)
+    public function __construct(int $vacancy, int $candidate)
     {
-        $this->id = $id;
+        $this->vacancy = $vacancy;
+        $this->candidate = $candidate;
     }
 
     /**
@@ -25,17 +27,15 @@ class StartTwinConversation implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start message batch hh candidate", ['response_id' => $this->id]);
+        Log::channel('app')->info("Start message batch manual candidate", ['candidate_id' => $this->candidate]);
         $EstaffService = app('estaff');
         $TwinService = app('twin');
 
-        $candidate = Response::findOrFail($this->id);
-        $vacancyData = $EstaffService->getVacancy($candidate->vacancy_estaff);
-        $candidateData = $EstaffService->getCandidate($candidate->candidate_estaff);
+        $vacancyData = $EstaffService->getVacancy($this->vacancy);
+        $candidateData = $EstaffService->getCandidate($this->candidate);
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
-            Log::channel('app')->info("Where's no mobile phone for message", ['candidate_id'
-                => $candidate->candidate_estaff]);
+            Log::channel('app')->info("Where's no mobile phone for message", ['candidate_id' => $this->candidate]);
             return;
         }
 
@@ -47,8 +47,7 @@ class StartTwinConversation implements ShouldQueue
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
 
-        $TwinService->sendMessage($phone, $candidate->candidate_estaff, $vars);
-        Log::channel('app')->info("WHATSAPP message created", ['candidate_id'
-        => $candidate->candidate_estaff]);
+        $TwinService->sendMessage($phone, $this->candidate, $vars);
+        Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $this->candidate]);
     }
 }

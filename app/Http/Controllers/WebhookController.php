@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EstaffWebhook;
+use App\Jobs\StartTwinManualConversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+
 class WebhookController extends Controller
 {
-    public function estaffWebhooks(Request $request)
+    public function estaffWebhooks(EstaffWebhook $request)
     {
-        Log::channel('estaff')->info("Webhook received", $request->all());
+        $data = $request->all();
+        Log::channel('estaff')->info("Webhook received", );
 
-        //разбор хука если статус 32 то шлем в твин
-        event_type_32
+        if ($data['event_type'] === 'candidate_state' && $data['data']['state_id'] === 'event_type_32') {
+            dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
+        }
 
         return response()->json('ok', 200);
     }
@@ -21,19 +26,7 @@ class WebhookController extends Controller
     {
         Log::channel('twin')->info("Webhook received", $request->all());
 
-        {
-            "id": "00a54d39-a18b-45f6-959e-1a4cea82ff91",
-          "bulkId": "a91f09a5-33f6-4a23-9f17-505a57956948",
-          "groupId": "d9a74f70-7547-4603-bd5e-523f0a290c8c",
-          "flowId": "5350e5f6-3215-4a0c-8869-dbeae14a6539",
-          "oldStatus": "PENDING",
-          "newStatus": "DELIVERED",
-          "oldStatusCode": 2,
-          "newStatusCode": 6,
-          "price": 0,
-          "partCount": 1,
-          "callbackData": "\"id\":\"23233\""
-        }
+
 
         return response()->json('ok', 200);
     }

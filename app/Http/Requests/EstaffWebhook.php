@@ -22,7 +22,11 @@ class EstaffWebhook extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "event_type" => 'required|string',
+            "data" => 'required|array',
+            'data.*.state_id' => 'nullable|string',
+            'data.*.vacancy_id' => 'nullable|integer',
+            'data.*.candidate_id' => 'nullable|integer'
         ];
     }
 }
