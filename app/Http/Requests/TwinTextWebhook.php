@@ -22,7 +22,9 @@ class TwinTextWebhook extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "newStatus" => 'required|string',
+            "callbackData" => 'required|string',
+            "id" => 'required|string'
         ];
     }
 }

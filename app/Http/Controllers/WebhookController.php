@@ -25,7 +25,13 @@ class WebhookController extends Controller
 
     public function twinWebhooks(TwinTextWebhook $request)
     {
-        Log::channel('twin')->info("Webhook received", $request->all());
+        $data = $request->all();
+        $flowStatuses = ['PENDING', 'DELAYED', 'UNDELIVERED', 'ERROR', 'PAUSED'];
+        Log::channel('twin')->info("Webhook received", $data);
+
+        if (in_array($data['newStatus'], $flowStatuses) {
+            //
+        }
 
         return response()->json('ok', 200);
     }
