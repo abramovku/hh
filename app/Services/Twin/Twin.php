@@ -55,5 +55,10 @@ class Twin
         Log::channel('twin')->info(__FUNCTION__ . ' get', $data);
         return $data;
     }
+
+    public function makeCall()
+    {
+
+    }
 }
 
