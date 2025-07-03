@@ -92,9 +92,7 @@ class TwinClient
     public function post(string $requestUrl, array $data, bool $auth = false): array
     {
 
-        if ($auth === false) {
-            $requestUrl = $this->config['api_url'] . $requestUrl;
-        } else {
+        if ($auth === true) {
             $requestUrl = $this->config['auth_url'] . $requestUrl;
         }
         return $this->request('POST', $requestUrl, ['json' => $data], $auth);

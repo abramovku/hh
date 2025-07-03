@@ -45,20 +45,21 @@ class Twin
                             ]
                         ],
                         "callbackData" => "$id",
-                        "callbackUrl" => route('twin.webhook')
+                        "callbackUrl" => config('app.external_url') . '/twin-webhooks'
                     ]
                 ]
             ]
         ];
 
-        $data = $this->client->post('message', $data);
-        Log::channel('twin')->info(__FUNCTION__ . ' get', $data);
+        $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
         return $data;
     }
 
     public function makeCall()
     {
-
+        $data = [];
+        $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
     }
 }
 

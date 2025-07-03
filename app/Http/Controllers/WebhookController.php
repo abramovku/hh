@@ -35,14 +35,17 @@ class WebhookController extends Controller
         $task = TwinTask::where('candidate_id', intval($data['candidate_id']))->first();
 
         if (!in_array($data['newStatus'], $flowStatuses)) {
-            if (empty($task)) {
-                //remove job
+            Log::channel('twin')->info("task can be removed from queue", $data);
+            if (!empty($task)) {
                 DB::table('jobs')->where('id', $task->job_id)->delete();
+                Log::channel('twin')->info("task removed from queue", ["task" => $task->id]);
                 return response()->json('ok', 200);
             }
         }
 
         dispatch(new StartTwinCall())->delay(now()->addHours(4));
+
+        Log::channel('twin')->info("task added to queue", ["task" => $task->id]);
 
         return response()->json('ok', 200);
     }
