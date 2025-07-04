@@ -56,10 +56,91 @@ class Twin
         return $data;
     }
 
-    public function makeCall()
+    public function makeCallTask()
     {
-        $data = [];
-        $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' send', []);
+        $today = Carbon::now()->format('Y-m-d');
+        $data = [
+            "additionalOptions" => [
+                "recordCall" => true,
+                "recTrimLeft" => false,
+                "fullListMethod" => "reject",
+                "fullListTime" => 13,
+                "useTr" => true,
+                "allowCallTimeFrom" => 32400,
+                "allowCallTimeTo" => 79200,
+                "detectRobot" => false,
+                "providerId" => $this->config['provider_id']
+            ],
+            "redialStrategyOptions" => [
+                "redialStrategyEn" => true,
+                "busy" => [
+                    "redial" => true,
+                    "time" => 1800,
+                    "count" => 3
+                ],
+                "noAnswer" => [
+                    "redial" => true,
+                    "time" => 900,
+                    "count" => 5
+                ],
+                "answerMash" => [
+                    "redial" => false
+                ],
+                "congestion" => [
+                    "redial" => true,
+                    "time" => 900,
+                    "count" => 5
+                ],
+                "answerNoList" => [
+                    "redial" => true,
+                    "time" => 1800,
+                    "count" => 2
+                ],
+                "candidateLimit" => [
+                    "redial" => true,
+                    "count" => 6
+                ],
+                "numberLimit" => [
+                    "redial" => true,
+                    "count" => 6
+                ]
+            ],
+            "name" => "CALL" . $today,
+            "defaultExec" => "robot",
+            "defaultExecData" => $this->config['default_exec'],
+            "secondExec" => "ignore",
+            "cidType" => "gornum",
+            "startType" => "manual",
+            "cps" => "0.97",
+            "cidData" => $this->config['cid'],
+            "webhookUrls" => [],
+            "callbackData" => [],
+        ];
+
+        $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
+        return $result;
+    }
+
+    public function makeCallToCandidate(string $callId, string $phone)
+    {
+        Log::channel('twin')->info(__FUNCTION__ . ' send', ['phone' => $phone, 'call_id' => $callId]);
+        $data = [
+            "batch" => [
+                [
+                    "callbackData" => [],
+                    "phone" => [$phone],
+                    "autoCallId" => $callId
+                ]
+            ],
+            "forceStart" => true,
+        ];
+        $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCallCandidate/batch', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
+        return $result;
     }
 }
+
+
 

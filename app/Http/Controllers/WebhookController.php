@@ -43,7 +43,7 @@ class WebhookController extends Controller
             }
         }
 
-        dispatch(new StartTwinCall())->delay(now()->addHours(4));
+        dispatch(new StartTwinCall(intval($data['candidate_id'])))->delay(now()->addHours(4));
 
         Log::channel('twin')->info("task added to queue", ["task" => $task->id]);
 

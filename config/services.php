@@ -48,10 +48,12 @@ return [
     ],
     'twin' => [
         'auth_url' => env('TWIN_AUTH_URL'),
-        'api_url' => env('TWIN_API_URL'),
         'auth_email' => env('TWIN_AUTH_EMAIL'),
         'auth_password' => env('TWIN_AUTH_PASSWORD'),
         'chat_id' => env('TWIN_CHAT_ID'),
         'bot_id' => env('TWIN_BOT_ID'),
+        'provider_id' => env('TWIN_PROVIDER_ID'),
+        'default_exec' => env('TWIN_DEFAULT_EXEC'),
+        'cid' => env('TWIN_CID'),
     ],
 ];
