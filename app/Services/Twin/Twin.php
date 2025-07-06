@@ -41,7 +41,7 @@ class Twin
                         "destinations" => [
                             [
                                 "variables" => $vars,
-                                "phone" => "79788388242"//$phone
+                                "phone" => $phone
                             ]
                         ],
                         "callbackData" => "$id",

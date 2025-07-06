@@ -68,6 +68,22 @@ class Estaff
         return $data;
     }
 
+    public function changeCandidate(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('candidate/change', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
+    public function setStateCandidate(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('candidate/set_state', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
     public function setWebhook(array $params): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
