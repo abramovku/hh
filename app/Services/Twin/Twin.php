@@ -123,14 +123,19 @@ class Twin
         return $result;
     }
 
-    public function makeCallToCandidate(string $callId, string $phone)
+    public function makeCallToCandidate(string $callId, string $phone, int $candidate)
     {
         Log::channel('twin')->info(__FUNCTION__ . ' send', ['phone' => $phone, 'call_id' => $callId]);
         $data = [
             "batch" => [
                 [
-                    "callbackData" => [],
+                    "callbackData" => [
+                        "EStaffID" => "$candidate"
+                    ],
                     "phone" => [$phone],
+                    "variables" => [
+                        "EStaffID" => "$candidate"
+                    ],
                     "autoCallId" => $callId
                 ]
             ],

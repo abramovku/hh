@@ -39,7 +39,7 @@ class StartTwinCall implements ShouldQueue
 
         if (!empty($getData['id']['identity'])) {
             sleep(6);
-            $TwinService->makeCallToCandidate($getData['id']['identity'], $phone);
+            $TwinService->makeCallToCandidate($getData['id']['identity'], $phone, $this->candidate);
         }
     }
 }
