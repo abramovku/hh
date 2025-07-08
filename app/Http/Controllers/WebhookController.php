@@ -32,7 +32,7 @@ class WebhookController extends Controller
         $flowStatuses = ['PENDING', 'DELAYED', 'UNDELIVERED', 'ERROR', 'PAUSED'];
         Log::channel('twin')->info("Webhook received", $data);
 
-        $task = TwinTask::where('candidate_id', intval($data['candidate_id']))->first();
+        $task = TwinTask::where('candidate_id', intval($data['callbackData']))->first();
 
         if (!in_array($data['newStatus'], $flowStatuses)) {
             Log::channel('twin')->info("task can be removed from queue", $data);
@@ -43,7 +43,14 @@ class WebhookController extends Controller
             }
         }
 
-        dispatch(new StartTwinCall(intval($data['candidate_id'])))->delay(now()->addHours(4));
+
+        $jobId = dispatch(new StartTwinCall(intval($data['callbackData'])))->delay(now()->addHours(4));
+
+        $newTask = new TwinTask();
+        $newTask->chat_id = $data['id'];
+        $newTask->candidate_id = $data['callbackData'];
+        $newTask->job_id = $jobId;
+        $newTask->save();
 
         Log::channel('twin')->info("task added to queue", ["task" => $task->id]);
 

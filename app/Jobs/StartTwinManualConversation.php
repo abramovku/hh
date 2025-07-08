@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Response;
+use App\Dictionaries\TestPhones;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Log;
 class StartTwinManualConversation implements ShouldQueue
 {
     use Queueable;
-
     private int $vacancy;
     private int $candidate;
+
     /**
      * Create a new job instance.
      */
@@ -47,6 +47,11 @@ class StartTwinManualConversation implements ShouldQueue
         ];
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
+
+        if (!in_array($phone, TestPhones::PHONES)){
+            Log::channel('app')->info("Phone not for test - reject", ['candidate_id' => $this->candidate]);
+            return;
+        }
 
         $TwinService->sendMessage($phone, $this->candidate, $vars);
         Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $this->candidate]);
