@@ -45,7 +45,7 @@ class Twin
                             ]
                         ],
                         "callbackData" => "$id",
-                        "callbackUrl" => config('app.url') . '/twin-webhooks'
+                        "callbackUrl" => config('app.external_url') . '/twin-webhooks'
                     ]
                 ]
             ]
