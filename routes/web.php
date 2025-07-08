@@ -5,7 +5,7 @@ use \App\Http\Controllers\CallbackController;
 use \App\Http\Controllers\WebhookController;
 
 Route::get('/', function () {
-    return "<?php echo app()->version(); ?>";
+    return app()->version();
 });
 
 Route::get('hh-callback', [CallbackController::class, 'hhCallback']);
