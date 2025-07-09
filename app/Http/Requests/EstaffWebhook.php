@@ -28,6 +28,12 @@ class EstaffWebhook extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->input('event_type') === 'test') {
+            return [
+                'event_type' => 'required|string|in:test',
+            ];
+        }
+
         return [
             "event_type" => 'required|string',
             "data" => 'required|array',
