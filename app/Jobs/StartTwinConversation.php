@@ -50,7 +50,7 @@ class StartTwinConversation implements ShouldQueue
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
 
         if (!in_array($phone, TestPhones::PHONES)){
-            Log::channel('app')->info("Phone not for test - reject", ['candidate_id' => $this->candidate]);
+            Log::channel('app')->info("Phone not for test - reject", ['candidate_id' => $candidate->candidate_estaff]);
             return;
         }
 
