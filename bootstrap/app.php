@@ -13,7 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
             '/estaff-webhooks',
-            '/twin-webhooks'
+            '/twin-webhooks',
+            '/twin/createCandidate',
+            '/twin/updateCandidate',
+            '/twin/stateCandidate',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
