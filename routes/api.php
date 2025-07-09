@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use \App\Http\Controllers\WebhookController;
+use \App\Http\Controllers\EndpointController;
 
 Route::post('estaff-webhooks', [WebhookController::class, 'estaffWebhooks'])->name('estaff.webhook');
 Route::post('twin-webhooks', [WebhookController::class, 'twinWebhooks'])->name('twin.webhook');
