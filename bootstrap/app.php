@@ -12,13 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->validateCsrfTokens(except: [
-            '/estaff-webhooks',
-            '/twin-webhooks',
-            '/twin/createCandidate',
-            '/twin/updateCandidate',
-            '/twin/stateCandidate',
-        ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

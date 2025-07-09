@@ -14,6 +14,11 @@ class AddCandidate extends FormRequest
         return true;
     }
 
+    public function expectsJson(): bool
+    {
+        return true;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
