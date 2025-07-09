@@ -23,7 +23,7 @@ class UpdateCandidate extends FormRequest
     {
         return [
             "candidate" => 'required|array',
-            "candidate.*.id" => 'required|integer',
+            "candidate.id" => 'required|integer',
             "changed_data" => 'required|array',
         ];
     }

@@ -23,8 +23,8 @@ class SetStateCandidate extends FormRequest
     {
         return [
             "candidate" => 'required|array',
-            "candidate.*.id" => 'required|integer',
-            "candidate.*.state_id" => 'required|string',
+            "candidate.id" => 'required|integer',
+            "candidate.state_id" => 'required|string',
         ];
     }
 }
