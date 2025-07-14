@@ -48,10 +48,10 @@ class StartTwinManualConversation implements ShouldQueue
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
 
-        if (!in_array($phone, TestPhones::PHONES)){
+        /*if (!in_array($phone, TestPhones::PHONES)){
             Log::channel('app')->info("Phone not for test - reject", ['candidate_id' => $this->candidate]);
             return;
-        }
+        }*/
 
         $TwinService->sendMessage($phone, $this->candidate, $vars);
         Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $this->candidate]);
