@@ -18,7 +18,7 @@ class Twin
 
     public function sendMessage(string $phone, int $id, array $vars)
     {
-        Log::channel('twin')->info(__FUNCTION__ . ' send', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
+        Log::channel('twin')->info(__FUNCTION__ . ' prepare', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
         $today = Carbon::now()->format('Y-m-d');
         $data = [
             "messages" => [
@@ -51,6 +51,7 @@ class Twin
             ]
         ];
 
+        Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
         $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
         return $data;
@@ -58,7 +59,6 @@ class Twin
 
     public function makeCallTask()
     {
-        Log::channel('twin')->info(__FUNCTION__ . ' send', []);
         $today = Carbon::now()->format('Y-m-d');
         $data = [
             "additionalOptions" => [
@@ -118,6 +118,7 @@ class Twin
             "callbackData" => [],
         ];
 
+        Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
         $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
         return $result;
@@ -125,7 +126,6 @@ class Twin
 
     public function makeCallToCandidate(string $callId, string $phone, int $candidate)
     {
-        Log::channel('twin')->info(__FUNCTION__ . ' send', ['phone' => $phone, 'call_id' => $callId]);
         $data = [
             "batch" => [
                 [
@@ -141,6 +141,7 @@ class Twin
             ],
             "forceStart" => true,
         ];
+        Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
         $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCallCandidate/batch', $data);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
         return $result;
