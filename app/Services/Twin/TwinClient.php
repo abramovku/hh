@@ -61,6 +61,7 @@ class TwinClient
                 $settingTable->where('key', 'twin_credentials')->update(['value' => json_encode($newData)]);
             }
             $this->token = $data['token'];
+            $this->refreshToken = $data['refreshToken'];
             return;
         }
         throw new \Exception('Set twin config - wrong params');
@@ -127,7 +128,7 @@ class TwinClient
                     ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
             }
 
-            if ($code == 401  && $auth === false) {
+            if ($code === 401  && $auth === false) {
                 $this->auth($this->refreshToken);
                 ++$this->tries;
                 return $this->request($type, $requestUrl, $data, $auth);

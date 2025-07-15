@@ -10,7 +10,7 @@ use App\Models\TwinTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Queue;
 
 class WebhookController extends Controller
 {
@@ -44,7 +44,9 @@ class WebhookController extends Controller
         }
 
 
-        $jobId = dispatch(new StartTwinCall(intval($data['callbackData'])))->delay(now()->addHours(4));
+        $job = dispatch(new StartTwinCall(intval($data['callbackData'])))->delay(now()->addHours(4));
+
+        $jobId = Queue::push($job);
 
         $newTask = new TwinTask();
         $newTask->chat_id = $data['id'];
