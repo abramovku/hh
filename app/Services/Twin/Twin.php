@@ -54,7 +54,7 @@ class Twin
         Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
         $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
-        return $data;
+        return $result;
     }
 
     public function makeCallTask()

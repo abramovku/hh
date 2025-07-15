@@ -54,7 +54,11 @@ class StartTwinConversation implements ShouldQueue
             return;
         }
 
-        $TwinService->sendMessage($phone, $candidate->candidate_estaff, $vars);
-        Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $candidate->candidate_estaff]);
+        $data = $TwinService->sendMessage($phone, $candidate->candidate_estaff, $vars);
+        if (!empty($data[0]['id'])) {
+            Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $candidate->candidate_estaff]);
+        } else {
+            Log::channel('app')->info("WHATSAPP message not created", ['candidate_id' => $candidate->candidate_estaff]);
+        }
     }
 }
