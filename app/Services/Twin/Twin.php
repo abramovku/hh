@@ -32,21 +32,21 @@ class Twin
                             "chatSessionName" => "WA" . $today ,
                             "provider" => "TWIN"
                         ],
-                        "allowedTimeRanges" => [
-                            [
-                                "9:00:00",
-                                "22:00:00"
-                            ]
-                        ],
-                        "destinations" => [
-                            [
-                                "variables" => $vars,
-                                "phone" => $phone
-                            ]
-                        ],
-                        "callbackData" => "$id",
-                        "callbackUrl" => config('app.external_url') . '/api/twin-webhooks'
-                    ]
+                    ],
+                    "allowedTimeRanges" => [
+                        [
+                            "9:00:00",
+                            "22:00:00"
+                        ]
+                    ],
+                    "destinations" => [
+                        [
+                            "variables" => $vars,
+                            "phone" => $phone
+                        ]
+                    ],
+                    "callbackData" => "$id",
+                    "callbackUrl" => config('app.external_url') . '/api/twin-webhooks'
                 ]
             ]
         ];
