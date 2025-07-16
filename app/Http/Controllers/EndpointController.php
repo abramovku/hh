@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCandidate;
+use App\Http\Requests\FindCandidate;
+use App\Http\Requests\FindVacancy;
+use App\Http\Requests\getCandidate;
 use App\Http\Requests\SetStateCandidate;
 use App\Http\Requests\UpdateCandidate;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +35,58 @@ class EndpointController extends Controller
             ]);
         }
         Log::channel('app')->info("twin create candidate response", [$response]);
+        return response()->json($response, 200);
+    }
+
+    public function get(GetCandidate $request)
+    {
+        Log::channel('app')->info("twin get candidate", [$request->all()]);
+        try {
+            $EstaffService = app('estaff');
+            $response = $EstaffService->getCandidateFull($request->all());
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'Estaff service error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Estaff return error.',
+                'error' => $e->getMessage(),
+                'data' => [],
+            ]);
+        }
+        Log::channel('app')->info("twin get candidate response", [$response]);
+        return response()->json($response, 200);
+    }
+
+    public function find(FindCandidate $request)
+    {
+        Log::channel('app')->info("twin find candidate", [$request->all()]);
+        try {
+            $EstaffService = app('estaff');
+            $response = $EstaffService->findCandidateFull($request->all());
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'Estaff service error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Estaff return error.',
+                'error' => $e->getMessage(),
+                'data' => [],
+            ]);
+        }
+        Log::channel('app')->info("twin find candidate response", [$response]);
         return response()->json($response, 200);
     }
 
@@ -86,6 +141,32 @@ class EndpointController extends Controller
 
 
         Log::channel('app')->info("twin set state candidate response", [$response]);
+        return response()->json($response, 200);
+    }
+
+    public function findVacancy(FindVacancy $request)
+    {
+        Log::channel('app')->info("twin find vacancy", [$request->all()]);
+        try {
+            $EstaffService = app('estaff');
+            $response = $EstaffService->findVacancyFull($request->all());
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'Estaff service error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Estaff return error.',
+                'error' => $e->getMessage(),
+                'data' => [],
+            ]);
+        }
+        Log::channel('app')->info("twin find vacancy response", [$response]);
         return response()->json($response, 200);
     }
 }

@@ -20,7 +20,7 @@ class Estaff
         Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
         $params = [
             'filter' => [
-                'eid' => $id
+                'cs_id_hh_1' => $id
             ]
         ];
         $data = $this->client->post('vacancy/find', $params);
@@ -64,6 +64,30 @@ class Estaff
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
         $data = $this->client->post('candidate/add', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
+    public function findVacancyFull(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('vacancy/find', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
+    public function getCandidateFull(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('candidate/get', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
+    public function findCandidateFull(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('candidate/find', $params);
         Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
         return $data;
     }
