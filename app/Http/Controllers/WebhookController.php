@@ -59,7 +59,7 @@ class WebhookController extends Controller
         }
 
 
-        $job = dispatch(new StartTwinCall(intval($data['callbackData'])))->delay(now()->addHours(4));
+        $job = (new StartTwinCall(intval($data['callbackData'])))->delay(now()->addHours(4));
 
         $jobId = Queue::push($job);
 
