@@ -128,7 +128,7 @@ class TwinClient
                     ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
             }
 
-            if ($code === 401  && $auth === false) {
+            if ($code == 401  && $auth === false) {
                 $this->auth($this->refreshToken);
                 ++$this->tries;
                 return $this->request($type, $requestUrl, $data, $auth);
