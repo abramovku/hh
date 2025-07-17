@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddCandidate;
 use App\Http\Requests\FindCandidate;
 use App\Http\Requests\FindVacancy;
-use App\Http\Requests\getCandidate;
+use App\Http\Requests\GetCandidate;
 use App\Http\Requests\SetStateCandidate;
 use App\Http\Requests\UpdateCandidate;
 use Illuminate\Support\Facades\Log;
