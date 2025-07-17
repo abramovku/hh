@@ -19,8 +19,23 @@ class WebhookController extends Controller
         $data = $request->all();
         Log::channel('estaff')->info("Webhook received", $data);
 
-        if ($data['event_type'] === 'candidate_state' && $data['data']['state_id'] === 'event_type_32') {
-            dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
+        if ($data['event_type'] === 'candidate_state' && !empty($data['data']['state_id'])) {
+            switch ($data['data']['state_id']) {
+                case 'event_type_32':
+                    dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
+                    break;
+                case 'event_type_47':
+                    $task = TwinTask::where('candidate_id', $data['data']['candidate_id'])->first();
+                    if (!empty($task)) {
+                        DB::table('jobs')->where('id', $task->job_id)->delete();
+                        Log::channel('twin')->info("task remove from queue", ["task" => $task->id]);
+                    }
+                    dispatch(new StartTwinCall($data['data']['candidate_id']));
+                    break;
+                case 'event_type_44':
+                    dispatch(new StartTwinSms($data['data']['candidate_id']));
+                    break;
+            }
         }
 
         return response()->json('ok', 200);

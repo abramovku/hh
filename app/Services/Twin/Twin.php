@@ -57,6 +57,33 @@ class Twin
         return $result;
     }
 
+    public function sendSms(string $phone)
+    {
+        $data = [
+            "messages" => [
+                [
+                    "useShortLinks" => false,
+                    "channels" => [
+                        "sms" => [
+                            "text" => "Вакансия Продавец в GJ, написать нам в ТГ: https://t.me/GJ_seller_bot",
+                            "from" => "GloriaJeans"
+                        ],
+                    ],
+                    "destinations" => [
+                        [
+                            "phone" => $phone
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
+        $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
+        return $result;
+    }
+
     public function makeCallTask()
     {
         $today = Carbon::now()->format('Y-m-d');
