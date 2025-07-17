@@ -29,16 +29,16 @@ class HHSync extends Command
         $hhService = app('hh');
         $managers = $hhService->getManagers();
 
-        if (!empty($managers['items'])) {
-            foreach ($managers['items'] as $manager) {
+        if (!empty($managers)) {
+            foreach ($managers as $manager) {
                 if ($manager['vacancies_count'] === 0 || $manager['vacancies_count'] === null ) {
                     continue;
                 }
                 $vacancies = $hhService->getVacanciesByManager($manager['id']);
-                if (!empty($vacancies['items'])) {
-                    foreach ($vacancies['items'] as $vacancy) {
+                if (!empty($vacancies)) {
+                    foreach ($vacancies as $vacancy) {
                         $responses = $hhService->getResponcesByVacancy($vacancy['id']);
-                        foreach ($responses['items'] as $item) {
+                        foreach ($responses as $item) {
                             $response = Response::where('response_id', $item['id'])->first();
                             if ($response === null) {
                                 $resume = $item['resume'];

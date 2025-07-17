@@ -30,26 +30,67 @@ class HH
     public function getManagers(): array
     {
         Log::channel('hh')->info(__FUNCTION__ . ' send');
+        $result = [];
         $data = $this->HHClient->get('/employers/' . $this->config['employer'] . '/managers');
+        if (!empty($data['items'])) {
+            $result = $data['items'];
+        }
+
+        if ($data['pages'] > 1) {
+            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
+                $dataNew = $this->HHClient->get('/employers/' . $this->config['employer'] . '/managers?page=' . $i);
+                if (!empty($dataNew['items'])) {
+                    $result = array_merge($result, $dataNew['items']);
+                }
+            }
+        }
+
         Log::channel('hh')->info(__FUNCTION__ . ' get');
-        return $data;
+        return $result;
     }
 
     public function getVacanciesByManager(int $id): array
     {
         Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        $result = [];
         $data = $this->HHClient->get('/employers/' . $this->config['employer']
             . '/vacancies/active?manager_id=' . $id);
+        if (!empty($data['items'])) {
+            $result = $data['items'];
+        }
+
+        if ($data['pages'] > 1) {
+            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
+                $dataNew = $this->HHClient->get('/employers/' . $this->config['employer']
+                    . '/vacancies/active?manager_id=' . $id . '&page=' . $i);
+                if (!empty($dataNew['items'])) {
+                    $result = array_merge($result, $dataNew['items']);
+                }
+            }
+        }
         Log::channel('hh')->info(__FUNCTION__ . ' get');
-        return $data;
+        return $result;
     }
 
     public function getResponcesByVacancy(int $id): array
     {
         Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        $result = [];
         $data = $this->HHClient->get('/negotiations/response?vacancy_id=' . $id);
+        if (!empty($data['items'])) {
+            $result = $data['items'];
+        }
+
+        if ($data['pages'] > 1) {
+            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
+                $dataNew = $this->HHClient->get('/negotiations/response?vacancy_id=' . $id . '&page=' . $i);
+                if (!empty($dataNew['items'])) {
+                    $result = array_merge($result, $dataNew['items']);
+                }
+            }
+        }
         Log::channel('hh')->info(__FUNCTION__ . ' get');
-        return $data;
+        return $result;
     }
 
     public function getResume(string $id, int $response_id, int $vacancy_id): array
