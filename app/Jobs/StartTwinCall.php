@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class StartTwinCall implements ShouldQueue
 {
