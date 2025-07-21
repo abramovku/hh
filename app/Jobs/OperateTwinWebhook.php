@@ -42,18 +42,21 @@ class OperateTwinWebhook implements ShouldQueue
                 Log::channel('twin')->info("task removed from queue", ["task" => $task->id]);
                 return;
             }
+            return;
         }
 
-        $delay = now()->addHours(4);
-        $job = new StartTwinCall(intval($this->data['callbackData']));
-        $uuid = $job->uuid;
-        dispatch($job)->delay($delay);
+        if (empty($task)) {
+            $delay = now()->addHours(4);
+            $job = new StartTwinCall(intval($this->data['callbackData']));
+            $uuid = $job->uuid;
+            dispatch($job)->delay($delay);
 
-        $newTask = new TwinTask();
-        $newTask->chat_id = $this->data['id'];
-        $newTask->candidate_id = $this->data['callbackData'];
-        $newTask->job_id = $uuid;
-        $newTask->save();
+            $newTask = new TwinTask();
+            $newTask->chat_id = $this->data['id'];
+            $newTask->candidate_id = $this->data['callbackData'];
+            $newTask->job_id = $uuid;
+            $newTask->save();
+        }
 
         Log::channel('twin')->info("task added to queue", ["task" => $task->id ?? 0]);
     }
