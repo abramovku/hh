@@ -5,18 +5,22 @@ namespace App\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Str;
 
 class StartTwinCall implements ShouldQueue
 {
     use Dispatchable, Queueable;
 
     private int $candidate;
+    public string $uuid;
+
     /**
      * Create a new job instance.
      */
     public function __construct(int $candidate)
     {
         $this->candidate = $candidate;
+        $this->uuid = (string) Str::uuid();
     }
 
     /**

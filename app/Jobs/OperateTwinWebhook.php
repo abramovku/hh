@@ -35,7 +35,10 @@ class OperateTwinWebhook implements ShouldQueue
         if (!in_array($this->data['newStatus'], $flowStatuses)) {
             Log::channel('twin')->info("task can be removed from queue", $this->data);
             if (!empty($task)) {
-                DB::table('jobs')->where('id', $task->job_id)->delete();
+                DB::table('jobs')
+                    ->where('payload', 'like', '%' . $task->job_id . '%')
+                    ->whereNull('reserved_at')
+                    ->delete();
                 Log::channel('twin')->info("task removed from queue", ["task" => $task->id]);
                 return;
             }
@@ -43,21 +46,13 @@ class OperateTwinWebhook implements ShouldQueue
 
         $delay = now()->addHours(4);
         $job = new StartTwinCall(intval($this->data['callbackData']));
-
-
-        $jobId = DB::table('jobs')->insertGetId([
-            'queue' => 'default',
-            'payload' => Queue::createPayload($job),
-            'attempts' => 0,
-            'reserved' => 0,
-            'available_at' => $delay->timestamp,
-            'created_at' => now()->timestamp,
-        ]);
+        $uuid = $job->uuid;
+        dispatch($job)->delay($delay);
 
         $newTask = new TwinTask();
         $newTask->chat_id = $this->data['id'];
         $newTask->candidate_id = $this->data['callbackData'];
-        $newTask->job_id = $jobId;
+        $newTask->job_id = $uuid;
         $newTask->save();
 
         Log::channel('twin')->info("task added to queue", ["task" => $task->id ?? 0]);

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('twin_tasks', function (Blueprint $table) {
             $table->integerIncrements('id');
             $table->string('chat_id');
-            $table->unsignedBigInteger('job_id');
+            $table->string('job_id');
             $table->unsignedBigInteger('candidate_id');
             $table->timestamps();
         });
