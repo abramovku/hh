@@ -69,7 +69,7 @@ class WebhookController extends Controller
         $newTask->job_id = $jobId;
         $newTask->save();
 
-        Log::channel('twin')->info("task added to queue", ["task" => $task->id]);
+        Log::channel('twin')->info("task added to queue", ["task" => $task->id ?? 0]);
 
         return response()->json('ok', 200);
     }

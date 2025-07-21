@@ -24,6 +24,7 @@ class StartTwinCall implements ShouldQueue
      */
     public function handle(): void
     {
+        Log::channel('app')->info("Start twin call job", ['candidate' => $this->candidate]);
         $TwinService = app('twin');
         $EstaffService = app('estaff');
         $candidateData = $EstaffService->getCandidate($this->candidate);
@@ -35,11 +36,12 @@ class StartTwinCall implements ShouldQueue
         }
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
-
+        Log::channel('app')->info("Start twin task for call", ['candidate' => $this->candidate]);
         $getData = $TwinService->makeCallTask();
 
         if (!empty($getData['id']['identity'])) {
             sleep(6);
+            Log::channel('app')->info("Start twin call to candidate", ['candidate' => $this->candidate]);
             $TwinService->makeCallToCandidate($getData['id']['identity'], $phone, $this->candidate);
         }
     }
