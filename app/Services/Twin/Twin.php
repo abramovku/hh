@@ -84,7 +84,7 @@ class Twin
         return $result;
     }
 
-    public function makeCallTask()
+    public function makeCallTask(int $candidate_id)
     {
         $today = Carbon::now()->format('Y-m-d');
         $data = [
@@ -133,7 +133,7 @@ class Twin
                     "count" => 6
                 ]
             ],
-            "name" => "CALL" . $today,
+            "name" => "CALL" . $today . "*" . $candidate_id,
             "defaultExec" => "robot",
             "defaultExecData" => $this->config['default_exec'],
             "secondExec" => "ignore",
