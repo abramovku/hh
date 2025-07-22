@@ -99,6 +99,11 @@ class TwinClient
         return $this->request('POST', $requestUrl, ['json' => $data], $auth);
     }
 
+    public function get(string $requestUrl): array
+    {
+        return $this->request('GET', $requestUrl);
+    }
+
     private function request(string $type, string $requestUrl, array $data = [], bool $auth = false)
     {
         if ($this->tries >= 2) {

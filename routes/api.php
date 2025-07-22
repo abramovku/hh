@@ -7,6 +7,7 @@ use \App\Http\Controllers\EndpointController;
 
 Route::post('estaff-webhooks', [WebhookController::class, 'estaffWebhooks'])->name('estaff.webhook');
 Route::post('twin-webhooks', [WebhookController::class, 'twinWebhooks'])->name('twin.webhook');
+Route::post('twin-webhooks-voice', [WebhookController::class, 'twinVoiceWebhooks'])->name('twin.webhook.voice');
 Route::group(['as' => 'twin.', 'prefix' => 'twin'], function () {
     Route::post('createCandidate', [EndpointController::class, 'create'])->name('twin.create');
     Route::post('updateCandidate', [EndpointController::class, 'update'])->name('twin.update');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EstaffWebhook;
 use App\Http\Requests\TwinTextWebhook;
+use App\Http\Requests\TwinVoiceWebhook;
+use App\Jobs\OperateTwinVoiceWebhook;
 use App\Jobs\OperateTwinWebhook;
 use App\Jobs\StartTwinCall;
 use App\Jobs\StartTwinManualConversation;
@@ -49,6 +51,17 @@ class WebhookController extends Controller
         Log::channel('twin')->info("Webhook received", $data);
 
         dispatch(new OperateTwinWebhook($data));
+
+        return response()->json('ok', 200);
+    }
+
+    public function twinVoiceWebhooks(TwinVoiceWebhook $request)
+    {
+        $data = $request->all();
+
+        Log::channel('twin')->info("Webhook voice received", $data);
+
+        dispatch(new OperateTwinVoiceWebhook($data));
 
         return response()->json('ok', 200);
     }
