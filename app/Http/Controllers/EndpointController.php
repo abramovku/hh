@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCandidate;
+use App\Http\Requests\EventCandidate;
 use App\Http\Requests\FindCandidate;
 use App\Http\Requests\FindVacancy;
 use App\Http\Requests\GetCandidate;
@@ -113,6 +114,32 @@ class EndpointController extends Controller
             ]);
         }
         Log::channel('app')->info("twin change candidate response", [$response]);
+        return response()->json($response, 200);
+    }
+
+    public function event(EventCandidate $request)
+    {
+        Log::channel('app')->info("twin add event candidate", [$request->all()]);
+        try {
+            $EstaffService = app('estaff');
+            $response = $EstaffService->eventCandidate($request->all());
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'Estaff service error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Estaff return error.',
+                'error' => $e->getMessage(),
+                'data' => [],
+            ]);
+        }
+        Log::channel('app')->info("twin add event candidate response", [$response]);
         return response()->json($response, 200);
     }
 

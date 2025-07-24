@@ -108,6 +108,14 @@ class Estaff
         return $data;
     }
 
+    public function eventCandidate(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('candidate/add_event', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
     public function setWebhook(array $params): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
