@@ -16,4 +16,5 @@ Route::group(['as' => 'twin.', 'prefix' => 'twin'], function () {
     Route::post('getCandidate', [EndpointController::class, 'get'])->name('twin.get');
     Route::post('findCandidate', [EndpointController::class, 'find'])->name('twin.find');
     Route::post('findVacancy', [EndpointController::class, 'findVacancy'])->name('twin.findVacancy');
+    Route::post('getVacancy', [EndpointController::class, 'getVacancy'])->name('twin.getVacancy');
 });

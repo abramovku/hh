@@ -92,6 +92,14 @@ class Estaff
         return $data;
     }
 
+    public function getVacancyFull(array $params): array
+    {
+        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        $data = $this->client->post('vacancy/get', $params);
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        return $data;
+    }
+
     public function changeCandidate(array $params): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
