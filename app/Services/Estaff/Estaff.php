@@ -31,7 +31,7 @@ class Estaff
     public function getVacancy(int $id, array $fields = []): array
     {
         Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
-        $result_fields = array_merge(["name", "division_name", "salary"], $fields);
+        $result_fields = array_merge(["name", "division_name", "salary", "cs_adress_intr", "max_salary"], $fields);
         $params = [
             "vacancy" => [
                 "id" => $id

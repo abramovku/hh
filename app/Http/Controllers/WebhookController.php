@@ -25,7 +25,9 @@ class WebhookController extends Controller
         if ($data['event_type'] === 'candidate_state' && !empty($data['data']['state_id'])) {
             switch ($data['data']['state_id']) {
                 case 'event_type_32':
-                    dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
+                    if (!empty($data['data']['vacancy_id']) && !empty($data['data']['candidate_id'])) {
+                        dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
+                    }
                     break;
                 case 'event_type_47':
                     $task = TwinTask::where('candidate_id', $data['data']['candidate_id'])->first();

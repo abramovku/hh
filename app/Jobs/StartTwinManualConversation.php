@@ -41,8 +41,8 @@ class StartTwinManualConversation implements ShouldQueue
 
         $vars = [
             "vacancy_name" => $vacancyData['vacancy']['name'],
-            "adress" => $vacancyData['vacancy']['division_name'],
-            "salary" => $vacancyData['vacancy']['salary'],
+            "adress" => $vacancyData['vacancy']['cs_adress_intr'],
+            "salary" => $vacancyData['vacancy']['max_salary'],
             "EStaffID" => "$this->candidate",
         ];
 
