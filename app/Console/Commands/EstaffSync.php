@@ -69,6 +69,8 @@ class EstaffSync extends Command
         $data['candidate']['firstname'] = $candidate->meta()->where('key', 'first_name')
             ->first()->value;
 
+        $data['candidate']['user_id'] = $candidate->manager_id;
+
 
         if (!empty(optional($last_name)->value)) {
             $data['candidate']['lastname'] = $last_name->value;
@@ -154,7 +156,6 @@ class EstaffSync extends Command
         }
 
         $data['vacancy']['id'] = $vacancy['id'];
-
         return $data;
     }
 }
