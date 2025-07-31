@@ -21,7 +21,8 @@ class Estaff
         $params = [
             'filter' => [
                 'cs_id_hh_1' => $id
-            ]
+            ],
+            "field_names" => ["user_id"]
         ];
         $data = $this->client->post('vacancy/find', $params);
         Log::channel('estaff')->info(__FUNCTION__ . ' get');
