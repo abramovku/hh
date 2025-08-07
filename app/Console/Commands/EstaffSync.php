@@ -130,10 +130,14 @@ class EstaffSync extends Command
                 foreach ($exp_data as $key =>$exp_item) {
                     if (!empty($exp_item['company'])) {
                         $data['candidate']['prev_jobs'][$key]['org_name'] = $exp_item['company'];
+                    } else {
+                        $data['candidate']['prev_jobs'][$key]['org_name'] = 'unknown';
                     }
 
                     if (!empty($exp_item['position'])) {
                         $data['candidate']['prev_jobs'][$key]['position_name'] = $exp_item['position'];
+                    } else {
+                        $data['candidate']['prev_jobs'][$key]['position_name'] = 'unknown';
                     }
 
                     if (!empty($exp_item['description'])) {
