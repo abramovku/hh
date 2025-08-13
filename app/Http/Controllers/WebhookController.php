@@ -8,7 +8,9 @@ use App\Http\Requests\TwinVoiceWebhook;
 use App\Jobs\OperateTwinVoiceWebhook;
 use App\Jobs\OperateTwinWebhook;
 use App\Jobs\StartTwinCall;
+use App\Jobs\StartTwinColdConversation;
 use App\Jobs\StartTwinManualConversation;
+use App\Jobs\StartTwinSms;
 use App\Models\TwinTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +41,11 @@ class WebhookController extends Controller
                     break;
                 case 'event_type_44':
                     dispatch(new StartTwinSms($data['data']['candidate_id']));
+                    break;
+                case 'event_type_48':
+                    if (!empty($data['data']['candidate_id'])) {
+                        dispatch(new StartTwinColdConversation($data['data']['candidate_id']));
+                    }
                     break;
             }
         }

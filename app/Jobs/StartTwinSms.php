@@ -50,5 +50,26 @@ class StartTwinSms implements ShouldQueue
         } else {
             Log::channel('app')->info("Sms not created", ['candidate_id' => $this->id]);
         }
+
+
+        $params = [
+            "candidate" => [
+                "id" => $this->id,
+                "state_id" => "event_type_51"
+            ]
+        ];
+
+        try {
+            $EstaffService->setStateCandidate($params);
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'change status after sms error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+        }
     }
 }

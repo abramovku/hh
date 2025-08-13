@@ -71,6 +71,8 @@ class EstaffSync extends Command
 
         $data['candidate']['user_id'] = $vacancy['user_id'];
 
+        $data['candidate']['entrance_type_id'] = "vacancy_response";
+        $data['candidate']['source_id'] = "hh.ru";
 
         if (!empty(optional($last_name)->value)) {
             $data['candidate']['lastname'] = $last_name->value;

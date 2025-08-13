@@ -57,6 +57,47 @@ class Twin
         return $result;
     }
 
+    public function sendMessageCold(string $phone, int $id, array $vars)
+    {
+        Log::channel('twin')->info(__FUNCTION__ . ' prepare', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
+        $today = Carbon::now()->format('Y-m-d');
+        $data = [
+            "messages" => [
+                [
+                    "useShortLinks" => false,
+                    "channels" => [
+                        "chat" => [
+                            "chatId" => $this->config['chat_id'],
+                            "botId" => "22149404-13bd-400a-8088-13ee160752a5",
+                            "messengerType" => "WHATSAPP",
+                            "chatSessionName" => "WA" . $today . "Холодный" ,
+                            "provider" => "TWIN"
+                        ],
+                    ],
+                    "allowedTimeRanges" => [
+                        [
+                            "9:00:00",
+                            "22:00:00"
+                        ]
+                    ],
+                    "destinations" => [
+                        [
+                            "variables" => $vars,
+                            "phone" => $phone
+                        ]
+                    ],
+                    "callbackData" => "$id",
+                    "callbackUrl" => config('app.external_url') . '/api/twin-webhooks'
+                ]
+            ]
+        ];
+
+        Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
+        $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
+        Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
+        return $result;
+    }
+
     public function sendSms(string $phone)
     {
         $data = [
