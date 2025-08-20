@@ -34,7 +34,10 @@ class WebhookController extends Controller
                 case 'event_type_47':
                     $task = TwinTask::where('candidate_id', $data['data']['candidate_id'])->first();
                     if (!empty($task)) {
-                        DB::table('jobs')->where('id', $task->job_id)->delete();
+                        DB::table('jobs')
+                            ->where('payload', 'like', '%' . $task->job_id . '%')
+                            ->whereNull('reserved_at')
+                            ->delete();
                         Log::channel('twin')->info("task remove from queue", ["task" => $task->id]);
                     }
                     dispatch(new StartTwinCall($data['data']['candidate_id']));
