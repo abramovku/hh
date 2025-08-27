@@ -20,7 +20,7 @@ class Estaff
         Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
         $params = [
             'filter' => [
-                'cs_id_hh_1' => $id
+                'cs_id_hh_1' => "$id"
             ],
             "field_names" => ["user_id"]
         ];
