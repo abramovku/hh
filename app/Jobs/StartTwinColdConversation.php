@@ -13,12 +13,15 @@ class StartTwinColdConversation implements ShouldQueue
 
     private int $candidate;
 
+    private ?int $vacancy;
+
     /**
      * Create a new job instance.
      */
-    public function __construct(int $candidate)
+    public function __construct(int $candidate, ?int $vacancy = null)
     {
         $this->candidate = $candidate;
+        $this->vacancy = $vacancy;
     }
 
     /**
@@ -30,6 +33,10 @@ class StartTwinColdConversation implements ShouldQueue
         $EstaffService = app('estaff');
         $TwinService = app('twin');
 
+        if (!empty($this->vacancy)) {
+            $vacancyData = $EstaffService->getVacancy($this->vacancy);
+        }
+
         $candidateData = $EstaffService->getCandidate($this->candidate);
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
@@ -40,6 +47,10 @@ class StartTwinColdConversation implements ShouldQueue
         $vars = [
             "EStaffID" => "$this->candidate",
         ];
+
+        if (!empty($vacancyData)){
+            $vars["EStaffIDVVacancy"] = strval($vacancyData['vacancy']['id']);
+        }
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
 

@@ -44,6 +44,7 @@ class StartTwinManualConversation implements ShouldQueue
             "adress" => $vacancyData['vacancy']['cs_adress_intr'],
             "salary" => $vacancyData['vacancy']['max_salary'],
             "EStaffID" => "$this->candidate",
+            "EStaffIDVVacancy" => strval($vacancyData['vacancy']['id']),
         ];
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);

@@ -21,13 +21,17 @@ class HHSync extends Command
      */
     protected $description = 'sync hh data';
 
+    private const RESUME_COUNT = 10;
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
         $hhService = app('hh');
+        $EstaffService = app('estaff');
         $managers = $hhService->getManagers();
+        $loaded = 0;
 
         if (!empty($managers)) {
             foreach ($managers as $manager) {
@@ -37,6 +41,11 @@ class HHSync extends Command
                 $vacancies = $hhService->getVacanciesByManager($manager['id']);
                 if (!empty($vacancies)) {
                     foreach ($vacancies as $vacancy) {
+                        // Проверяем наличие вакансии в estaff
+                        if (empty($EstaffService->findVacancy($vacancy['id']))) {
+                            continue;
+                        }
+
                         $responses = $hhService->getResponcesByVacancy($vacancy['id']);
                         foreach ($responses as $item) {
                             $response = Response::where('response_id', $item['id'])->first();
@@ -49,6 +58,13 @@ class HHSync extends Command
 
                                 if (empty($resume['id'])) {
                                     continue;
+                                }
+
+                                // Ограничение на количество обрабатываемых резюме за один запуск
+                                $loaded++;
+                                if ($loaded > self::RESUME_COUNT) {
+                                    $this->info('Load limit reached, stopping execution.');
+                                    return;
                                 }
 
                                 $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);

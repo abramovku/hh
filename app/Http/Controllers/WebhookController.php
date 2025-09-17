@@ -47,7 +47,10 @@ class WebhookController extends Controller
                     break;
                 case 'event_type_48':
                     if (!empty($data['data']['candidate_id'])) {
-                        dispatch(new StartTwinColdConversation($data['data']['candidate_id']));
+                        dispatch(new StartTwinColdConversation(
+                            $data['data']['candidate_id'],
+                            $data['data']['vacancy_id'] ?? null
+                        ));
                     }
                     break;
             }

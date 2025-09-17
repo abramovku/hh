@@ -39,6 +39,11 @@ class EstaffSync extends Command
         foreach ($data as $vacancy => $responses) {
             $vacancyData = $EstaffService->findVacancy($vacancy);
             if (empty($vacancyData)) {
+                $this->info("vacancy {$vacancy} not found in estaff");
+                foreach ($responses as $candidate) {
+                    $candidate->setSend();
+                    $candidate->save();
+                }
                 continue;
             }
             foreach ($responses as $candidate) {
