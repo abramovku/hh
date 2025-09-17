@@ -30,7 +30,7 @@ class GetVacancy extends FormRequest
     {
         return [
             "vacancy" => 'required|array',
-            "vacancy.id" => 'required|integer',
+            "vacancy.id" => 'required|integer|min:1',
         ];
     }
 

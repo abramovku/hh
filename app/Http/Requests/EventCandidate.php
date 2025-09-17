@@ -30,7 +30,7 @@ class EventCandidate extends FormRequest
     {
         return [
             "candidate" => 'required|array',
-            "candidate.id" => 'required|integer',
+            "candidate.id" => 'required|integer|min:1',
             "candidate.state_id" => 'required|string',
             "event" => 'required|array',
         ];

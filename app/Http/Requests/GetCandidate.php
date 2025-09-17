@@ -30,7 +30,7 @@ class GetCandidate extends FormRequest
     {
         return [
             "candidate" => 'required|array',
-            "candidate.id" => 'required|integer',
+            "candidate.id" => 'required|integer|min:1',
         ];
     }
 
