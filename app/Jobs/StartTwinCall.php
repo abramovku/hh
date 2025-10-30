@@ -42,12 +42,10 @@ class StartTwinCall implements ShouldQueue
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
         Log::channel('app')->info("Start twin task for call", ['candidate' => $this->candidate]);
-        $getData = $TwinService->makeCallTask($this->candidate);
+        $task = $TwinService->getCallTask();
 
-        if (!empty($getData['id']['identity'])) {
-            sleep(6);
-            Log::channel('app')->info("Start twin call to candidate", ['candidate' => $this->candidate]);
-            $TwinService->makeCallToCandidate($getData['id']['identity'], $phone, $this->candidate);
-        }
+        sleep(6);
+        Log::channel('app')->info("Start twin call to candidate", ['candidate' => $this->candidate]);
+        $TwinService->makeCallToCandidate($task, $phone, $this->candidate);
     }
 }

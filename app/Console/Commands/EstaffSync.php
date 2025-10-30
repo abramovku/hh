@@ -6,6 +6,7 @@ use App\Jobs\StartTwinConversation;
 use App\Models\Response;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class EstaffSync extends Command
 {
@@ -40,6 +41,9 @@ class EstaffSync extends Command
             $vacancyData = $EstaffService->findVacancy($vacancy);
             if (empty($vacancyData)) {
                 $this->info("vacancy {$vacancy} not found in estaff");
+                Log::channel('estaff')->info("sync vacancy not found in estaff", [
+                    'vacancy' => $vacancy,
+                ]);
                 foreach ($responses as $candidate) {
                     $candidate->setSend();
                     $candidate->save();

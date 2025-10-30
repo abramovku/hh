@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Response;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class HHSync extends Command
 {
@@ -43,6 +44,7 @@ class HHSync extends Command
                     foreach ($vacancies as $vacancy) {
                         // Проверяем наличие вакансии в estaff
                         if (empty($EstaffService->findVacancy($vacancy['id']))) {
+                            Log::channel('hh')->info("vacancy not found in estaff", ['vacancy' => $vacancy['id']]);
                             continue;
                         }
 
@@ -53,10 +55,18 @@ class HHSync extends Command
                                 $resume = $item['resume'];
 
                                 if (empty($resume['first_name'])) {
+                                    Log::channel('hh')->info("response haven't first name", [
+                                        'vacancy' => $vacancy['id'],
+                                        'response' => $item['id'],
+                                    ]);
                                     continue;
                                 }
 
                                 if (empty($resume['id'])) {
+                                    Log::channel('hh')->info("response haven't resume id", [
+                                        'vacancy' => $vacancy['id'],
+                                        'response' => $item['id'],
+                                    ]);
                                     continue;
                                 }
 
@@ -70,6 +80,11 @@ class HHSync extends Command
                                 $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
 
                                 if (empty($fullResume)) {
+                                    Log::channel('hh')->info("response full resume empty", [
+                                        'vacancy' => $vacancy['id'],
+                                        'response' => $item['id'],
+                                        'resume' => $resume['id']
+                                    ]);
                                     continue;
                                 }
 
@@ -93,6 +108,10 @@ class HHSync extends Command
                                 }
 
                                 if (empty($email) && empty($cell)) {
+                                    Log::channel('hh')->info("response haven't email and cell", [
+                                        'vacancy' => $vacancy['id'],
+                                        'response' => $item['id'],
+                                    ]);
                                     continue;
                                 }
 

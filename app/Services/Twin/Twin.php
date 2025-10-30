@@ -2,6 +2,7 @@
 
 namespace App\Services\Twin;
 
+use App\Models\CallTask;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -125,9 +126,31 @@ class Twin
         return $result;
     }
 
-    public function makeCallTask(int $candidate_id)
+    public function getCallTask(): string
     {
         $today = Carbon::now()->format('Y-m-d');
+        $type = 'default';
+
+        $task = CallTask::whereDate('date', '=', $today)
+            ->where('type', $type)
+            ->pluck('twin_id')
+            ->first();
+
+        if (empty($task)) {
+            Log::channel('twin')->info('CallTask not found in DB - creating it',[
+                "date" => $today,
+                "type" => $type
+            ]);
+            $task = $this->makeCallTask($type);
+        }
+
+        return $task;
+    }
+
+    private function makeCallTask(string $type): string
+    {
+        $today = Carbon::now()->format('Y-m-d');
+
         $data = [
             "additionalOptions" => [
                 "recordCall" => true,
@@ -174,7 +197,7 @@ class Twin
                     "count" => 6
                 ]
             ],
-            "name" => "CALL" . $today . "*" . $candidate_id,
+            "name" => "CALL" . $today . "*" . $type,
             "defaultExec" => "robot",
             "defaultExecData" => $this->config['default_exec'],
             "secondExec" => "ignore",
@@ -189,7 +212,18 @@ class Twin
         Log::channel('twin')->info(__FUNCTION__ . ' send', $data);
         $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
-        return $result;
+
+        if (!empty($result['id']['identity'])) {
+            CallTask::create([
+                'date' => $today,
+                'type' => $type,
+                'twin_id' => $result['id']['identity']
+            ]);
+
+            return $result['id']['identity'];
+        }
+
+        throw new \Exception('CallTask false');
     }
 
     public function makeCallToCandidate(string $callId, string $phone, int $candidate)
