@@ -129,7 +129,7 @@ class Twin
     public function getCallTask(): string
     {
         $today = Carbon::now()->format('Y-m-d');
-        $type = 'default';
+        $type = 'Продавец-Кассир РФ';
 
         $task = CallTask::whereDate('date', '=', $today)
             ->where('type', $type)
