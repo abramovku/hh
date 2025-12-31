@@ -46,7 +46,7 @@ class OperateTwinWebhook implements ShouldQueue
         }
 
         if (empty($task)) {
-            $delay = now()->addHours(4);
+            $delay = now()->addMinute();
             $job = new StartTwinCall(intval($this->data['callbackData']));
             $uuid = $job->uuid;
             dispatch($job)->delay($delay);
