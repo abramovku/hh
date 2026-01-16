@@ -172,7 +172,7 @@ class Twin
                 ],
                 "noAnswer" => [
                     "redial" => true,
-                    "time" => 900,
+                    "time" => 7200,
                     "count" => 5
                 ],
                 "answerMash" => [
@@ -185,7 +185,7 @@ class Twin
                 ],
                 "answerNoList" => [
                     "redial" => true,
-                    "time" => 1800,
+                    "time" => 3600,
                     "count" => 2
                 ],
                 "candidateLimit" => [
@@ -249,11 +249,11 @@ class Twin
         return $result;
     }
 
-    public function getDataCall(string $taskId)
+    public function getDataCall(string $taskId, string $id)
     {
         Log::channel('twin')->info(__FUNCTION__ . ' send', ['taskId' => $taskId]);
         $result = $this->client->get('https://twin24.ai/analyse/api/v1/search/cis/sessions?fields=currentStatusName,
-         number&taskId=' . $taskId);
+         number&taskId=' . $taskId . '&id=' . $id);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
         return $result;
     }

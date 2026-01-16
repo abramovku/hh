@@ -31,18 +31,21 @@ class OperateTwinVoiceWebhook implements ShouldQueue
         $flowStatuses = ['ANSWERED', 'DIAL', 'INPROGRESS'];
 
         $TwinService = app('twin');
-        $data = $TwinService->getDataCall($this->data['taskId']);
+        if (empty($this->data['taskId']) || empty($this->data['id'])) {
+            Log::channel('twin')->info("voice webhook missing data", ["data" => $this->data]);
+            return;
+        }
 
+        $data = $TwinService->getDataCall($this->data['taskId'], $this->data['id']);
 
         if (!empty($data['items']) && is_array($data['items'])) {
-            $reversed = array_reverse($data['items']);
 
             if (
-                !empty($reversed[0]['currentStatusName'])
-                && !empty($reversed[0]['number'])
-                && !in_array($reversed[0]['currentStatusName'], $flowStatuses)
+                !empty($data['items'][0]['currentStatusName'])
+                && !empty($data['items'][0]['number'])
+                && !in_array($data['items'][0]['currentStatusName'], $flowStatuses)
             ) {
-                dispatch(new StartTwinSmsDirect($reversed[0]['number'],
+                dispatch(new StartTwinSmsDirect($data['items'][0]['number'],
                     $this->data['callbackData']['EStaffID'] ?? ''));
                 Log::channel('twin')->info("voice webhook send sms", ["data" => $this->data]);
                 return;
