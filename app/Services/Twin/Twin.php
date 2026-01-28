@@ -251,7 +251,7 @@ class Twin
 
     public function getDataCall(string $taskId, string $id)
     {
-        Log::channel('twin')->info(__FUNCTION__ . ' send', ['taskId' => $taskId]);
+        Log::channel('twin')->info(__FUNCTION__ . ' send', ['taskId' => $taskId, 'id' => $id]);
         $result = $this->client->get('https://twin24.ai/analyse/api/v1/search/cis/sessions?fields=currentStatusName,
          number&taskId=' . $taskId . '&id=' . $id);
         Log::channel('twin')->info(__FUNCTION__ . ' get', $result);
