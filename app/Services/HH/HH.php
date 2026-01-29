@@ -98,7 +98,8 @@ class HH
         Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id, 'response_id' => $response_id,
             'vacancy_id' => $vacancy_id]);
         $data = $this->HHClient->get('/resumes/' . $id . '?topic_id=' . $response_id . '&vacancy_id=' . $vacancy_id);
-        Log::channel('hh')->info(__FUNCTION__ . ' get');
+        Log::channel('hh')->info(__FUNCTION__ . ' get', ['id' => $id, 'response_id' => $response_id,
+            'vacancy_id' => $vacancy_id]);
         return $data;
     }
 }
