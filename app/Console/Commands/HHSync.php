@@ -22,7 +22,7 @@ class HHSync extends Command
      */
     protected $description = 'sync hh data';
 
-    private const RESUME_COUNT = 10;
+    private const RESUME_COUNT = 5;
 
     /**
      * Execute the console command.
@@ -59,6 +59,13 @@ class HHSync extends Command
                                         'vacancy' => $vacancy['id'],
                                         'response' => $item['id'],
                                     ]);
+                                    $response = Response::create([
+                                        'response_id' => $item['id'],
+                                        'manager_id' => $manager['id'],
+                                        'vacancy_id' => $vacancy['id']
+                                    ]);
+                                    $response->error = "response haven't first name";
+                                    $response->save();
                                     continue;
                                 }
 
@@ -67,6 +74,13 @@ class HHSync extends Command
                                         'vacancy' => $vacancy['id'],
                                         'response' => $item['id'],
                                     ]);
+                                    $response = Response::create([
+                                        'response_id' => $item['id'],
+                                        'manager_id' => $manager['id'],
+                                        'vacancy_id' => $vacancy['id']
+                                    ]);
+                                    $response->error = "response haven't resume id";
+                                    $response->save();
                                     continue;
                                 }
 
@@ -77,7 +91,20 @@ class HHSync extends Command
                                     return;
                                 }
 
-                                $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
+                                $response = Response::create([
+                                    'response_id' => $item['id'],
+                                    'manager_id' => $manager['id'],
+                                    'vacancy_id' => $vacancy['id']
+                                ]);
+
+                                try {
+                                    $fullResume = $hhService->getResume($resume['id'], $item['id'], $vacancy['id']);
+                                } catch (\Exception $e) {
+                                    Log::channel('hh')->info("response full resume error", ['error' =>
+                                        $e->getMessage()]);
+                                    $response->error = substr($e->getMessage(), 0, 255);
+                                    $response->save();
+                                }
 
                                 if (empty($fullResume)) {
                                     Log::channel('hh')->info("response full resume empty", [
@@ -85,6 +112,8 @@ class HHSync extends Command
                                         'response' => $item['id'],
                                         'resume' => $resume['id']
                                     ]);
+                                    $response->error = "response full resume empty";
+                                    $response->save();
                                     continue;
                                 }
 
@@ -112,14 +141,10 @@ class HHSync extends Command
                                         'vacancy' => $vacancy['id'],
                                         'response' => $item['id'],
                                     ]);
+                                    $response->error = "response haven't email and cell";
+                                    $response->save();
                                     continue;
                                 }
-
-                                $response = Response::create([
-                                    'response_id' => $item['id'],
-                                    'manager_id' => $manager['id'],
-                                    'vacancy_id' => $vacancy['id']
-                                ]);
 
                                 $response->meta()->create(
                                     ['key' => 'first_name', 'value' => $resume['first_name']]

@@ -25,7 +25,7 @@ class Estaff
             "field_names" => ["user_id"]
         ];
         $data = $this->client->post('vacancy/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get');
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
         return $data['vacancies'][0] ?? [];
     }
 
@@ -41,7 +41,7 @@ class Estaff
         ];
 
         $data = $this->client->post('vacancy/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get');
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
         return $data;
     }
 
@@ -57,7 +57,7 @@ class Estaff
         ];
 
         $data = $this->client->post('candidate/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get');
+        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
         return $data;
     }
 

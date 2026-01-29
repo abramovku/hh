@@ -31,12 +31,12 @@ class OperateTwinVoiceWebhook implements ShouldQueue
         $flowStatuses = ['ANSWERED', 'DIAL', 'INPROGRESS'];
 
         $TwinService = app('twin');
-        if (empty($this->data['taskId']) || empty($this->data['id'])) {
+        if (empty($this->data['taskId']) || empty($this->data['lastCallId'])) {
             Log::channel('twin')->info("voice webhook missing data", ["data" => $this->data]);
             return;
         }
 
-        $data = $TwinService->getDataCall($this->data['taskId'], $this->data['id']);
+        $data = $TwinService->getDataCall($this->data['taskId'], $this->data['lastCallId']);
 
         if (!empty($data['items']) && is_array($data['items'])) {
 
