@@ -104,6 +104,7 @@ class HHSync extends Command
                                         $e->getMessage()]);
                                     $response->error = substr($e->getMessage(), 0, 255);
                                     $response->save();
+                                    continue;
                                 }
 
                                 if (empty($fullResume)) {
