@@ -22,7 +22,7 @@ class HHSync extends Command
      */
     protected $description = 'sync hh data';
 
-    private const RESUME_COUNT = 5;
+    private const RESUME_COUNT = 10;
 
     /**
      * Execute the console command.
