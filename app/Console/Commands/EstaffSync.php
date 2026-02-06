@@ -31,7 +31,8 @@ class EstaffSync extends Command
     {
         $EstaffService = app('estaff');
 
-        $data = Response::whereNull('sent_at')->whereNull('error')->get()->groupBy('vacancy_id');
+        $data = Response::whereNull('sent_at')
+            ->whereNull('error')->get()->groupBy('vacancy_id');
         if (empty($data)) {
             $this->info('there is no responses to send!');
             return;

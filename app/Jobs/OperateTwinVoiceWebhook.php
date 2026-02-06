@@ -36,6 +36,8 @@ class OperateTwinVoiceWebhook implements ShouldQueue
             return;
         }
 
+        sleep(7);
+
         $data = $TwinService->getDataCall($this->data['taskId'], $this->data['lastCallId']);
 
         if (!empty($data['items']) && is_array($data['items'])) {
