@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 class StartTwinManualConversation implements ShouldQueue
 {
     use Queueable;
+
     private int $vacancy;
+
     private int $candidate;
 
     /**
@@ -27,7 +29,7 @@ class StartTwinManualConversation implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start message batch manual candidate", ['candidate_id' => $this->candidate]);
+        Log::channel('app')->info('Start message batch manual candidate', ['candidate_id' => $this->candidate]);
         $EstaffService = app('estaff');
         $TwinService = app('twin');
 
@@ -36,15 +38,16 @@ class StartTwinManualConversation implements ShouldQueue
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
             Log::channel('app')->info("Where's no mobile phone for message", ['candidate_id' => $this->candidate]);
+
             return;
         }
 
         $vars = [
-            "vacancy_name" => $vacancyData['vacancy']['name'],
-            "adress" => $vacancyData['vacancy']['cs_adress_intr'],
-            "salary" => $vacancyData['vacancy']['max_salary'],
-            "EStaffID" => "$this->candidate",
-            "EStaffIDVVacancy" => strval($vacancyData['vacancy']['id']),
+            'vacancy_name' => $vacancyData['vacancy']['name'],
+            'adress' => $vacancyData['vacancy']['cs_adress_intr'],
+            'salary' => $vacancyData['vacancy']['max_salary'],
+            'EStaffID' => "$this->candidate",
+            'EStaffIDVVacancy' => strval($vacancyData['vacancy']['id']),
         ];
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
@@ -56,10 +59,10 @@ class StartTwinManualConversation implements ShouldQueue
 
         $data = $TwinService->sendMessage($phone, $this->candidate, $vars);
 
-        if (!empty($data[0]['id'])) {
-            Log::channel('app')->info("WHATSAPP message created", ['candidate_id' => $this->candidate]);
+        if (! empty($data[0]['id'])) {
+            Log::channel('app')->info('WHATSAPP message created', ['candidate_id' => $this->candidate]);
         } else {
-            Log::channel('app')->info("WHATSAPP message not created", ['candidate_id' => $this->candidate]);
+            Log::channel('app')->info('WHATSAPP message not created', ['candidate_id' => $this->candidate]);
         }
     }
 }

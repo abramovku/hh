@@ -35,6 +35,7 @@ class EstaffSync extends Command
             ->whereNull('error')->get()->groupBy('vacancy_id');
         if (empty($data)) {
             $this->info('there is no responses to send!');
+
             return;
         }
 
@@ -42,7 +43,7 @@ class EstaffSync extends Command
             $vacancyData = $EstaffService->findVacancy($vacancy);
             if (empty($vacancyData)) {
                 $this->info("vacancy {$vacancy} not found in estaff");
-                Log::channel('estaff')->info("sync vacancy not found in estaff", [
+                Log::channel('estaff')->info('sync vacancy not found in estaff', [
                     'vacancy' => $vacancy,
                 ]);
                 foreach ($responses as $candidate) {
@@ -81,18 +82,18 @@ class EstaffSync extends Command
 
         $data['candidate']['user_id'] = $vacancy['user_id'];
 
-        $data['candidate']['entrance_type_id'] = "vacancy_response";
-        $data['candidate']['source_id'] = "hh.ru";
+        $data['candidate']['entrance_type_id'] = 'vacancy_response';
+        $data['candidate']['source_id'] = 'hh.ru';
 
-        if (!empty(optional($last_name)->value)) {
+        if (! empty(optional($last_name)->value)) {
             $data['candidate']['lastname'] = $last_name->value;
         }
 
-        if (!empty(optional($middle_name)->value)) {
+        if (! empty(optional($middle_name)->value)) {
             $data['candidate']['middlename'] = $middle_name->value;
         }
 
-        if (!empty(optional($gender)->value)) {
+        if (! empty(optional($gender)->value)) {
             $gender_id = 0;
             if ($gender->value === 'female') {
                 $gender_id = 1;
@@ -100,69 +101,68 @@ class EstaffSync extends Command
             $data['candidate']['gender_id'] = $gender_id;
         }
 
-        if (!empty(optional($birth_date)->value)) {
+        if (! empty(optional($birth_date)->value)) {
             $data['candidate']['birth_date'] = $birth_date->value;
         }
 
-
-        if (!empty(optional($cell)->value)) {
+        if (! empty(optional($cell)->value)) {
             $data['candidate']['mobile_phone'] = $cell->value;
         }
 
-        if (!empty(optional($email)->value)) {
+        if (! empty(optional($email)->value)) {
             $data['candidate']['email'] = $email->value;
         }
 
-        if (!empty(optional($title)->value)) {
+        if (! empty(optional($title)->value)) {
             $data['candidate']['desired_position_name'] = $title->value;
         }
 
-        if (!empty(optional($edu)->value)) {
+        if (! empty(optional($edu)->value)) {
             $edu_data = json_decode($edu->value, true);
-            if (!empty($edu_data['primary']) && is_array($edu_data['primary'])) {
-                foreach ($edu_data['primary'] as $key =>$edu_item) {
-                    if (!empty($edu_item['name'])) {
+            if (! empty($edu_data['primary']) && is_array($edu_data['primary'])) {
+                foreach ($edu_data['primary'] as $key => $edu_item) {
+                    if (! empty($edu_item['name'])) {
                         $data['candidate']['prev_educations'][$key]['org_name'] = $edu_item['name'];
                     }
 
-                    if (!empty($edu_item['result'])) {
+                    if (! empty($edu_item['result'])) {
                         $data['candidate']['prev_educations'][$key]['speciality_name'] = $edu_item['result'];
                     }
 
-                    if (!empty($edu_item['year'])) {
+                    if (! empty($edu_item['year'])) {
                         $data['candidate']['prev_educations'][$key]['end_year'] = intval($edu_item['year']);
                     }
                 }
             }
         }
 
-        if (!empty(optional($exp)->value)) {
+        if (! empty(optional($exp)->value)) {
             $exp_data = json_decode($exp->value, true);
-            if (!empty($exp_data) && is_array($exp_data)) {
-                foreach ($exp_data as $key =>$exp_item) {
-                    if (!empty($exp_item['company'])) {
+            if (! empty($exp_data) && is_array($exp_data)) {
+                foreach ($exp_data as $key => $exp_item) {
+                    if (! empty($exp_item['company'])) {
                         $data['candidate']['prev_jobs'][$key]['org_name'] = $exp_item['company'];
                     } else {
                         $data['candidate']['prev_jobs'][$key]['org_name'] = 'unknown';
                     }
 
-                    if (!empty($exp_item['position'])) {
+                    if (! empty($exp_item['position'])) {
                         $data['candidate']['prev_jobs'][$key]['position_name'] = $exp_item['position'];
                     } else {
                         $data['candidate']['prev_jobs'][$key]['position_name'] = 'unknown';
                     }
 
-                    if (!empty($exp_item['description'])) {
+                    if (! empty($exp_item['description'])) {
                         $data['candidate']['prev_jobs'][$key]['comment'] = $exp_item['description'];
                     }
 
-                    if (!empty($exp_item['start'])) {
+                    if (! empty($exp_item['start'])) {
                         $startObj = Carbon::parse($exp_item['start']);
                         $data['candidate']['prev_jobs'][$key]['start_year'] = $startObj->year;
                         $data['candidate']['prev_jobs'][$key]['start_month'] = $startObj->month;
                     }
 
-                    if (!empty($exp_item['end'])) {
+                    if (! empty($exp_item['end'])) {
                         $endObj = Carbon::parse($exp_item['end']);
                         $data['candidate']['prev_jobs'][$key]['end_year'] = $endObj->year;
                         $data['candidate']['prev_jobs'][$key]['end_month'] = $endObj->month;
@@ -172,6 +172,7 @@ class EstaffSync extends Command
         }
 
         $data['vacancy']['id'] = $vacancy['id'];
+
         return $data;
     }
 }

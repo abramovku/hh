@@ -11,6 +11,7 @@ class StartTwinSmsDirect implements ShouldQueue
     use Queueable;
 
     private string $phone;
+
     private string $candidate;
 
     /**
@@ -27,7 +28,7 @@ class StartTwinSmsDirect implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start sms message direct", ['phone' => $this->phone]);
+        Log::channel('app')->info('Start sms message direct', ['phone' => $this->phone]);
 
         $TwinService = app('twin');
         $EstaffService = app('estaff');
@@ -35,18 +36,18 @@ class StartTwinSmsDirect implements ShouldQueue
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $this->phone);
 
         $data = $TwinService->sendSms($phone);
-        if (!empty($data[0]['id'])) {
-            Log::channel('app')->info("Sms created", ['phone' => $this->phone]);
+        if (! empty($data[0]['id'])) {
+            Log::channel('app')->info('Sms created', ['phone' => $this->phone]);
         } else {
-            Log::channel('app')->info("Sms not created", ['phone' => $this->phone]);
+            Log::channel('app')->info('Sms not created', ['phone' => $this->phone]);
         }
 
-        if (!empty($this->candidate)) {
+        if (! empty($this->candidate)) {
             $params = [
-                "candidate" => [
-                    "id" => intval($this->candidate),
-                    "state_id" => "event_type_51"
-                ]
+                'candidate' => [
+                    'id' => intval($this->candidate),
+                    'state_id' => 'event_type_51',
+                ],
             ];
 
             try {

@@ -31,14 +31,15 @@ class EstaffAutoWebhook extends Command
         $data = $EstaffService->getWebhooks();
 
         if (empty($data['webhooks'][0]['id'])) {
-            Log::channel('app')->info("Webhook is empty need to recreate");
-            $data = ["url" => route('estaff.webhook'),
-                "name" => "Candidate states webhook",
-                "events" => ["candidate_state"]];
+            Log::channel('app')->info('Webhook is empty need to recreate');
+            $data = ['url' => route('estaff.webhook'),
+                'name' => 'Candidate states webhook',
+                'events' => ['candidate_state']];
             $EstaffService->setWebhook($data);
+
             return;
         }
 
-        Log::channel('app')->info("Webhook is exists " . $data['webhooks'][0]['id'] );
+        Log::channel('app')->info('Webhook is exists '.$data['webhooks'][0]['id']);
     }
 }

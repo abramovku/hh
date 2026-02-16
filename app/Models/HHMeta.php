@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class HHMeta extends Model
 {
     public const MINIBOX = 'minibox';
+
     /**
      * @var string
      */

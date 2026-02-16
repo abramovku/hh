@@ -28,7 +28,7 @@ class HHAuth extends Command
         $auth_url = config('services.hh.api_auth_url');
         $client_id = config('services.hh.client_id');
         $redirect_url = config('services.hh.redirect_uri');
-        $url = $auth_url . '?response_type=code&client_id=' . $client_id . '&redirect_uri=' .
+        $url = $auth_url.'?response_type=code&client_id='.$client_id.'&redirect_uri='.
             $redirect_url;
         $this->info('Copy the following url, past on browser and hit return.');
         $this->line($url);

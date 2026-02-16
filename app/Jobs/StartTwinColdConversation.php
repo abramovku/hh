@@ -29,11 +29,11 @@ class StartTwinColdConversation implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start message batch cold candidate", ['candidate_id' => $this->candidate]);
+        Log::channel('app')->info('Start message batch cold candidate', ['candidate_id' => $this->candidate]);
         $EstaffService = app('estaff');
         $TwinService = app('twin');
 
-        if (!empty($this->vacancy)) {
+        if (! empty($this->vacancy)) {
             $vacancyData = $EstaffService->getVacancy($this->vacancy);
         }
 
@@ -41,15 +41,16 @@ class StartTwinColdConversation implements ShouldQueue
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
             Log::channel('app')->info("Where's no mobile phone for message", ['candidate_id' => $this->candidate]);
+
             return;
         }
 
         $vars = [
-            "EStaffID" => "$this->candidate",
+            'EStaffID' => "$this->candidate",
         ];
 
-        if (!empty($vacancyData)){
-            $vars["EStaffIDVVacancy"] = strval($vacancyData['vacancy']['id']);
+        if (! empty($vacancyData)) {
+            $vars['EStaffIDVVacancy'] = strval($vacancyData['vacancy']['id']);
         }
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
@@ -61,10 +62,10 @@ class StartTwinColdConversation implements ShouldQueue
 
         $data = $TwinService->sendMessageCold($phone, $this->candidate, $vars);
 
-        if (!empty($data[0]['id'])) {
-            Log::channel('app')->info("WHATSAPP cold message created", ['candidate_id' => $this->candidate]);
+        if (! empty($data[0]['id'])) {
+            Log::channel('app')->info('WHATSAPP cold message created', ['candidate_id' => $this->candidate]);
         } else {
-            Log::channel('app')->info("WHATSAPP cold message not created", ['candidate_id' => $this->candidate]);
+            Log::channel('app')->info('WHATSAPP cold message not created', ['candidate_id' => $this->candidate]);
         }
     }
 }

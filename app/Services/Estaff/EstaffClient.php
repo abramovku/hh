@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class EstaffClient
 {
     private $client;
+
     private $config;
 
     public function __construct(array $config)
@@ -17,7 +18,7 @@ class EstaffClient
             'base_uri' => $config['url'],
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $config['token']
+                'Authorization' => 'Bearer '.$config['token'],
             ],
         ]);
     }
@@ -32,12 +33,15 @@ class EstaffClient
         try {
             $response = $this->client->request($type, $requestUrl, $data);
             $response = json_decode($response->getBody(), true);
+
             return $response ?? [];
         } catch (RequestException $e) {
             $code = $e->getCode();
             $response = json_decode($e->getResponse()->getBody(), true);
-            Log::channel('estaff')->error('Estaff Service http request failed',
-                ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
+            Log::channel('estaff')->error(
+                'Estaff Service http request failed',
+                ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]
+            );
             throw $e;
         }
     }

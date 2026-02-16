@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class GetVacancy extends FormRequest
@@ -29,8 +29,8 @@ class GetVacancy extends FormRequest
     public function rules(): array
     {
         return [
-            "vacancy" => 'required|array',
-            "vacancy.id" => 'required|integer|min:1',
+            'vacancy' => 'required|array',
+            'vacancy.id' => 'required|integer|min:1',
         ];
     }
 
@@ -39,7 +39,7 @@ class GetVacancy extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'message' => 'The given data was invalid.',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

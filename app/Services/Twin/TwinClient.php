@@ -3,15 +3,19 @@
 namespace App\Services\Twin;
 
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TwinClient
 {
     private $client;
+
     private $config;
+
     private $token;
+
     private $refreshToken;
+
     private $tries;
 
     public function __construct(array $config)
@@ -20,11 +24,11 @@ class TwinClient
         $this->tries = 0;
         $settings = $this->getConfig();
 
-        if (!empty($settings['token'])) {
+        if (! empty($settings['token'])) {
             $this->token = $settings['token'];
         }
 
-        if (!empty($settings['refreshToken'])) {
+        if (! empty($settings['refreshToken'])) {
             $this->refreshToken = $settings['refreshToken'];
         }
 
@@ -40,18 +44,19 @@ class TwinClient
     {
         $authSettings = DB::table('settings')
             ->where('key', 'twin_credentials')->first();
-        if (!empty($authSettings)) {
+        if (! empty($authSettings)) {
             $return = json_decode($authSettings->value, true);
-            if (!empty($return['token']) && !empty($return['refreshToken'])) {
+            if (! empty($return['token']) && ! empty($return['refreshToken'])) {
                 return $return;
             }
         }
+
         return [];
     }
 
     public function setConfig($data): void
     {
-        if (!empty($data['token'])) {
+        if (! empty($data['token'])) {
             $settingTable = DB::table('settings');
             $setting = $settingTable->where('key', 'twin_credentials')->first();
             if (empty($setting)) {
@@ -62,19 +67,18 @@ class TwinClient
             }
             $this->token = $data['token'];
             $this->refreshToken = $data['refreshToken'];
+
             return;
         }
         throw new \Exception('Set twin config - wrong params');
     }
 
     /**
-     * @param $token
-     * @return void
      * @throws \Exception
      */
     public function auth(string $token = ''): void
     {
-        if (!empty($token)) {
+        if (! empty($token)) {
             $data = [
                 'refreshToken' => $token,
             ];
@@ -94,8 +98,9 @@ class TwinClient
     {
 
         if ($auth === true) {
-            $requestUrl = $this->config['auth_url'] . $requestUrl;
+            $requestUrl = $this->config['auth_url'].$requestUrl;
         }
+
         return $this->request('POST', $requestUrl, ['json' => $data], $auth);
     }
 
@@ -112,30 +117,35 @@ class TwinClient
         if ($auth === false) {
             if (empty($this->token)) {
                 $this->auth();
-                ++$this->tries;
+                $this->tries++;
+
                 return $this->request($type, $requestUrl, $data);
             }
 
             $data = array_merge($data, [
-                'headers' => ['Authorization' => 'Bearer ' . $this->token]
+                'headers' => ['Authorization' => 'Bearer '.$this->token],
             ]);
         }
         try {
             $response = $this->client->request($type, $requestUrl, $data);
             $response = json_decode($response->getBody(), true);
             $this->tries = 0;
+
             return $response ?? [];
         } catch (RequestException $e) {
             $code = $e->getCode();
             $response = json_decode($e->getResponse()->getBody(), true);
             if ($code !== 401 || $this->tries > 0) {
-                Log::channel('twin')->error('Twin Service http request failed',
-                    ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
+                Log::channel('twin')->error(
+                    'Twin Service http request failed',
+                    ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]
+                );
             }
 
-            if ($code == 401  && $auth === false) {
+            if ($code == 401 && $auth === false) {
                 $this->auth();
-                ++$this->tries;
+                $this->tries++;
+
                 return $this->request($type, $requestUrl, $data, $auth);
             } else {
                 throw $e;

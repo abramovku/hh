@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Dictionaries\TestPhones;
-use App\Models\Response;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +12,7 @@ class StartTwinSms implements ShouldQueue
     use Queueable;
 
     private int $id;
+
     /**
      * Create a new job instance.
      */
@@ -26,7 +26,7 @@ class StartTwinSms implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start sms message", ['response_id' => $this->id]);
+        Log::channel('app')->info('Start sms message', ['response_id' => $this->id]);
         $EstaffService = app('estaff');
         $TwinService = app('twin');
 
@@ -34,6 +34,7 @@ class StartTwinSms implements ShouldQueue
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
             Log::channel('app')->info("Where's no mobile phone for message", ['candidate_id' => $this->id]);
+
             return;
         }
 
@@ -45,18 +46,17 @@ class StartTwinSms implements ShouldQueue
         }*/
 
         $data = $TwinService->sendSms($phone);
-        if (!empty($data[0]['id'])) {
-            Log::channel('app')->info("Sms created", ['candidate_id' => $this->id]);
+        if (! empty($data[0]['id'])) {
+            Log::channel('app')->info('Sms created', ['candidate_id' => $this->id]);
         } else {
-            Log::channel('app')->info("Sms not created", ['candidate_id' => $this->id]);
+            Log::channel('app')->info('Sms not created', ['candidate_id' => $this->id]);
         }
 
-
         $params = [
-            "candidate" => [
-                "id" => $this->id,
-                "state_id" => "event_type_51"
-            ]
+            'candidate' => [
+                'id' => $this->id,
+                'state_id' => 'event_type_51',
+            ],
         ];
 
         try {

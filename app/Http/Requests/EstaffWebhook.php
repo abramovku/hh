@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class EstaffWebhook extends FormRequest
@@ -35,11 +35,11 @@ class EstaffWebhook extends FormRequest
         }
 
         return [
-            "event_type" => 'required|string',
-            "data" => 'required|array',
+            'event_type' => 'required|string',
+            'data' => 'required|array',
             'data.state_id' => 'nullable|string',
             'data.vacancy_id' => 'nullable|integer',
-            'data.candidate_id' => 'nullable|integer'
+            'data.candidate_id' => 'nullable|integer',
         ];
     }
 
@@ -48,7 +48,7 @@ class EstaffWebhook extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'message' => 'The given data was invalid.',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

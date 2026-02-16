@@ -19,5 +19,4 @@ class TwinTask extends Model
         'job_id',
         'candidate_id',
     ];
-
 }

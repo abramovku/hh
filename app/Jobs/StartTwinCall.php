@@ -3,16 +3,17 @@
 namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Str;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class StartTwinCall implements ShouldQueue
 {
     use Dispatchable, Queueable;
 
     private int $candidate;
+
     public string $uuid;
 
     /**
@@ -29,22 +30,22 @@ class StartTwinCall implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel('app')->info("Start twin call job", ['candidate' => $this->candidate]);
+        Log::channel('app')->info('Start twin call job', ['candidate' => $this->candidate]);
         $TwinService = app('twin');
         $EstaffService = app('estaff');
         $candidateData = $EstaffService->getCandidate($this->candidate);
 
         if (empty($candidateData['candidate']['mobile_phone'])) {
-            Log::channel('app')->info("Where's no mobile phone for call", ['candidate_id'
-            => $this->candidate]);
+            Log::channel('app')->info("Where's no mobile phone for call", ['candidate_id' => $this->candidate]);
+
             return;
         }
 
         $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
-        Log::channel('app')->info("Start twin task for call", ['candidate' => $this->candidate]);
+        Log::channel('app')->info('Start twin task for call', ['candidate' => $this->candidate]);
         $task = $TwinService->getCallTask();
 
-        Log::channel('app')->info("Start twin call to candidate", ['candidate' => $this->candidate]);
+        Log::channel('app')->info('Start twin call to candidate', ['candidate' => $this->candidate]);
         $TwinService->makeCallToCandidate($task, $phone, $this->candidate)->delay(now()->addSeconds(6));
     }
 }

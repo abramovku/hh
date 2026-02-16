@@ -120,6 +120,15 @@ npm run dev                         # Vite asset bundler
 composer test  # Clears config cache and runs PHPUnit
 ```
 
+### Code Style
+```bash
+.\pint.bat          # Fix all code style issues
+.\pint.bat --test   # Check without fixing
+.\pint.bat --dirty  # Only check uncommitted files (Git)
+```
+
+Laravel Pint configuration in `pint.json` enforces Laravel preset with additional rules for imports and spacing.
+
 ## Database Patterns
 
 ### Response Tracking

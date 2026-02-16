@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
 
             return function ($config = []) use ($stack) {
                 return new Client(array_merge($config, ['handler' => $stack,
-                    'timeout' => 60, 'connect_timeout' => 60
+                    'timeout' => 60, 'connect_timeout' => 60,
                 ]));
             };
         });

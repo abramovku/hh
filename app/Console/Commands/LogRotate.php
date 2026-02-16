@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class LogRotate extends Command
 {
@@ -31,7 +31,7 @@ class LogRotate extends Command
         $days = (int) $this->option('days');
         $cutoffDate = Carbon::now()->subDays($days);
 
-        $this->info("Starting log rotation...");
+        $this->info('Starting log rotation...');
         $this->info("Deleting logs older than {$days} days (before {$cutoffDate->format('Y-m-d H:i:s')})");
 
         try {
@@ -40,7 +40,7 @@ class LogRotate extends Command
             $batchSize = 1000;
 
             do {
-                $deletedCount = DB::delete("
+                $deletedCount = DB::delete('
                     DELETE FROM log
                     WHERE id IN (
                         SELECT id FROM (
@@ -49,7 +49,7 @@ class LogRotate extends Command
                             LIMIT ?
                         ) AS temp
                     )
-                ", [$cutoffDate, $batchSize]);
+                ', [$cutoffDate, $batchSize]);
 
                 $totalDeleted += $deletedCount;
 
@@ -66,7 +66,7 @@ class LogRotate extends Command
             $deletedFiles = 0;
 
             if (is_dir($logPath)) {
-                $files = glob($logPath . '/*.log');
+                $files = glob($logPath.'/*.log');
 
                 foreach ($files as $file) {
                     if (is_file($file)) {
@@ -74,7 +74,7 @@ class LogRotate extends Command
                         if ($fileTime < $cutoffDate->timestamp) {
                             if (unlink($file)) {
                                 $deletedFiles++;
-                                $this->line("Deleted file: " . basename($file));
+                                $this->line('Deleted file: '.basename($file));
                             }
                         }
                     }
@@ -83,26 +83,25 @@ class LogRotate extends Command
                 $this->info("Successfully deleted {$deletedFiles} old log files.");
             }
 
-            Log::channel('app')->info("Log rotation completed", [
+            Log::channel('app')->info('Log rotation completed', [
                 'days' => $days,
                 'cutoff_date' => $cutoffDate->format('Y-m-d H:i:s'),
                 'deleted_db_entries' => $totalDeleted,
-                'deleted_files' => $deletedFiles
+                'deleted_files' => $deletedFiles,
             ]);
 
-            $this->info("Log rotation completed successfully!");
+            $this->info('Log rotation completed successfully!');
 
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $this->error("Error during log rotation: " . $e->getMessage());
-            Log::channel('app')->error("Log rotation failed", [
+            $this->error('Error during log rotation: '.$e->getMessage());
+            Log::channel('app')->error('Log rotation failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return Command::FAILURE;
         }
     }
 }
-

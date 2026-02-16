@@ -26,13 +26,13 @@ class EstaffSetupWebhook extends Command
     public function handle()
     {
         $EstaffService = app('estaff');
-        $this->info("Webhook handler url: " . route('estaff.webhook'));
+        $this->info('Webhook handler url: '.route('estaff.webhook'));
         $action = $this->choice('Select action with Estaff webhook', ['add', 'get', 'delete']);
         switch ($action) {
             case 'add':
-                $data = ["url" => route('estaff.webhook'),
-                    "name" => "Candidate states webhook",
-                    "events" => ["candidate_state"]];
+                $data = ['url' => route('estaff.webhook'),
+                    'name' => 'Candidate states webhook',
+                    'events' => ['candidate_state']];
                 $response = $EstaffService->setWebhook($data);
                 dd($response);
                 break;

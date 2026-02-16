@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TwinTextWebhook extends FormRequest
@@ -29,9 +29,9 @@ class TwinTextWebhook extends FormRequest
     public function rules(): array
     {
         return [
-            "newStatus" => 'required|string',
-            "callbackData" => 'required|string',
-            "id" => 'required|string'
+            'newStatus' => 'required|string',
+            'callbackData' => 'required|string',
+            'id' => 'required|string',
         ];
     }
 
@@ -40,7 +40,7 @@ class TwinTextWebhook extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'message' => 'The given data was invalid.',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

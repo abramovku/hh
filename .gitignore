@@ -22,3 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 /.osp
+.php-cs-fixer.cache
+.pint.cache

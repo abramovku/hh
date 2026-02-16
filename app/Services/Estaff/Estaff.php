@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 class Estaff
 {
     private $config;
+
     private $client;
 
     public function __construct($config)
@@ -17,135 +18,149 @@ class Estaff
 
     public function findVacancy(int $id): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
         $params = [
             'filter' => [
-                'cs_id_hh_1' => "$id"
+                'cs_id_hh_1' => "$id",
             ],
-            "field_names" => ["user_id"]
+            'field_names' => ['user_id'],
         ];
         $data = $this->client->post('vacancy/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
+        Log::channel('estaff')->info(__FUNCTION__.' get', ['id' => $id]);
+
         return $data['vacancies'][0] ?? [];
     }
 
     public function getVacancy(int $id, array $fields = []): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
-        $result_fields = array_merge(["name", "division_name", "salary", "cs_adress_intr", "max_salary"], $fields);
+        Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
+        $result_fields = array_merge(['name', 'division_name', 'salary', 'cs_adress_intr', 'max_salary'], $fields);
         $params = [
-            "vacancy" => [
-                "id" => $id
+            'vacancy' => [
+                'id' => $id,
             ],
-            "field_names" => $result_fields
+            'field_names' => $result_fields,
         ];
 
         $data = $this->client->post('vacancy/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
+        Log::channel('estaff')->info(__FUNCTION__.' get', ['id' => $id]);
+
         return $data;
     }
 
     public function getCandidate(int $id, array $fields = []): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
-        $result_fields = array_merge(["mobile_phone"], $fields);
+        Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
+        $result_fields = array_merge(['mobile_phone'], $fields);
         $params = [
-            "candidate" => [
-                "id" => $id
+            'candidate' => [
+                'id' => $id,
             ],
-            "field_names" => $result_fields
+            'field_names' => $result_fields,
         ];
 
         $data = $this->client->post('candidate/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', ['id' => $id]);
+        Log::channel('estaff')->info(__FUNCTION__.' get', ['id' => $id]);
+
         return $data;
     }
 
     public function addResponse(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/add', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function findVacancyFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('vacancy/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function getCandidateFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function findCandidateFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function getVacancyFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('vacancy/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function changeCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/change', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function setStateCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/set_state', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function eventCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('candidate/add_event', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function setWebhook(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', $params);
+        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
         $data = $this->client->post('webhook/set', $params);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function getWebhooks(): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send');
+        Log::channel('estaff')->info(__FUNCTION__.' send');
         $data = $this->client->post('webhook/get', []);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 
     public function deleteWebhook(string $id): array
     {
-        Log::channel('estaff')->info(__FUNCTION__ . ' send', ['id' => $id]);
+        Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
         $data = $this->client->post('webhook/delete', ['id' => $id]);
-        Log::channel('estaff')->info(__FUNCTION__ . ' get', $data);
+        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
+
         return $data;
     }
 }

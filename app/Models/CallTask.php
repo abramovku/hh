@@ -10,6 +10,7 @@ class CallTask extends Model
      * @var string
      */
     protected $table = 'call_tasks';
+
     public $timestamps = false;
 
     /**
@@ -18,6 +19,6 @@ class CallTask extends Model
     protected $fillable = [
         'twin_id',
         'type',
-        'date'
+        'date',
     ];
 }

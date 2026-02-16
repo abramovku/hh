@@ -2,18 +2,24 @@
 
 namespace App\Services\HH;
 
-use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class HHClient
 {
     private $client;
+
     private string $token;
+
     private int $tries;
+
     private string $clientId;
+
     private string $clientSecret;
+
     private string $redirectUri;
+
     private string $apiUrl;
 
     public function __construct(array $config)
@@ -25,7 +31,7 @@ class HHClient
         $this->tries = 0;
 
         $settings = $this->getConfig();
-        if (!empty($settings['access_token'])) {
+        if (! empty($settings['access_token'])) {
             $this->token = $settings['access_token'];
         }
 
@@ -43,18 +49,19 @@ class HHClient
     {
         $authSettings = DB::table('settings')
             ->where('key', 'hh_credentials')->first();
-        if (!empty($authSettings)) {
+        if (! empty($authSettings)) {
             $return = json_decode($authSettings->value, true);
-            if (!empty($return['access_token']) && !empty($return['refresh_token'])) {
+            if (! empty($return['access_token']) && ! empty($return['refresh_token'])) {
                 return $return;
             }
         }
+
         return [];
     }
 
     public function setConfig($data): void
     {
-        if (!empty($data['access_token'])) {
+        if (! empty($data['access_token'])) {
             $settingTable = DB::table('settings');
             $setting = $settingTable->where('key', 'hh_credentials')->first();
             if (empty($setting)) {
@@ -64,6 +71,7 @@ class HHClient
                 $settingTable->where('key', 'hh_credentials')->update(['value' => json_encode($newData)]);
             }
             $this->token = $data['access_token'];
+
             return;
         }
         throw new \Exception('Set hh config - wrong params');
@@ -90,27 +98,23 @@ class HHClient
 
     public function get(string $requestUrl): array
     {
-        return $this->request('GET', $this->apiUrl . $requestUrl);
+        return $this->request('GET', $this->apiUrl.$requestUrl);
     }
 
     /**
-     * @param string $requestUrl
-     * @param array $data
-     * @param $auth
-     * @return array
      * @throws \Exception
      */
     public function post(string $requestUrl, array $data, bool $auth = false): array
     {
-        $requestUrl = $this->apiUrl . $requestUrl;
+        $requestUrl = $this->apiUrl.$requestUrl;
         if ($auth === false) {
-            $data = (!empty($data)) ? ['json' => $data] : [];
+            $data = (! empty($data)) ? ['json' => $data] : [];
         } else {
             $data = ['form_params' => $data];
         }
+
         return $this->request('POST', $requestUrl, $data, $auth);
     }
-
 
     private function request(string $type, string $requestUrl, array $data = [], bool $auth = false)
     {
@@ -122,27 +126,31 @@ class HHClient
                 throw new \Exception('hh auth token not found');
             }
             $data = array_merge($data, [
-                'headers' => ['Authorization' => 'Bearer ' . $this->token]
+                'headers' => ['Authorization' => 'Bearer '.$this->token],
             ]);
         }
         try {
             $response = $this->client->request($type, $requestUrl, $data);
             $response = json_decode($response->getBody(), true);
             $this->tries = 0;
+
             return $response ?? [];
         } catch (RequestException $e) {
             $code = $e->getCode();
             $response = json_decode($e->getResponse()->getBody(), true);
             if (($code !== 403 && $code !== 404) || $this->tries > 0) {
-                Log::channel('hh')->error('HH Service http request failed',
-                    ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]);
+                Log::channel('hh')->error(
+                    'HH Service http request failed',
+                    ['requestUrl' => $requestUrl, 'code' => $code, 'response' => $response]
+                );
             }
 
-            if ($code == 403  && $auth === false) {
+            if ($code == 403 && $auth === false) {
                 $this->auth();
-                ++$this->tries;
+                $this->tries++;
+
                 return $this->request($type, $requestUrl, $data, $auth);
-            } elseif ($code == 404){
+            } elseif ($code == 404) {
                 return [];
             } else {
                 throw $e;
