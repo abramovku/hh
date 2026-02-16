@@ -44,8 +44,7 @@ class StartTwinCall implements ShouldQueue
         Log::channel('app')->info("Start twin task for call", ['candidate' => $this->candidate]);
         $task = $TwinService->getCallTask();
 
-        sleep(6);
         Log::channel('app')->info("Start twin call to candidate", ['candidate' => $this->candidate]);
-        $TwinService->makeCallToCandidate($task, $phone, $this->candidate);
+        $TwinService->makeCallToCandidate($task, $phone, $this->candidate)->delay(now()->addSeconds(6));
     }
 }
