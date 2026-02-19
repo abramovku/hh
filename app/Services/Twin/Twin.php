@@ -110,7 +110,7 @@ class Twin
                     'useShortLinks' => false,
                     'channels' => [
                         'sms' => [
-                            'text' => 'Вакансия Продавец в GJ, написать нам в ТГ: https://t.me/GJ_seller_bot',
+                            'text' => 'Продавец в GJ\nЗапишись на соб-ие\nТГ: 2wn.me/beFth\nMAX: 2wn.me/beFti',
                             'from' => 'GloriaJeans',
                         ],
                     ],
