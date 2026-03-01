@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Dictionaries\TestPhones;
+use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class StartTwinColdConversation implements ShouldQueue
 {
-    use Queueable, SanitizesPhone;
+    use Queueable, RecordsContactEvent, SanitizesPhone;
 
     private int $candidate;
 
@@ -65,6 +66,7 @@ class StartTwinColdConversation implements ShouldQueue
 
         if (! empty($data[0]['id'])) {
             Log::channel('app')->info('WHATSAPP cold message created', ['candidate_id' => $this->candidate]);
+            $this->recordContact($this->candidate, 'whatsapp');
         } else {
             Log::channel('app')->info('WHATSAPP cold message not created', ['candidate_id' => $this->candidate]);
         }

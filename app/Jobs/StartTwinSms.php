@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Dictionaries\TestPhones;
 use App\Enums\EstaffEvent;
+use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class StartTwinSms implements ShouldQueue
 {
-    use Queueable, SanitizesPhone;
+    use Queueable, RecordsContactEvent, SanitizesPhone;
 
     private int $id;
 
@@ -50,6 +51,7 @@ class StartTwinSms implements ShouldQueue
         $data = $TwinService->sendSms($phone);
         if (! empty($data[0]['id'])) {
             Log::channel('app')->info('Sms created', ['candidate_id' => $this->id]);
+            $this->recordContact($this->id, 'sms');
         } else {
             Log::channel('app')->info('Sms not created', ['candidate_id' => $this->id]);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,7 +12,7 @@ use Illuminate\Support\Str;
 
 class StartTwinCall implements ShouldQueue
 {
-    use Dispatchable, Queueable, SanitizesPhone;
+    use Dispatchable, Queueable, RecordsContactEvent, SanitizesPhone;
 
     private int $candidate;
 
@@ -49,5 +50,6 @@ class StartTwinCall implements ShouldQueue
 
         Log::channel('app')->info('Start twin call to candidate', ['candidate' => $this->candidate]);
         $TwinService->makeCallToCandidate($task, $phone, $this->candidate);
+        $this->recordContact($this->candidate, 'call');
     }
 }

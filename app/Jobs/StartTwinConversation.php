@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Dictionaries\TestPhones;
 use App\Models\Response;
+use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class StartTwinConversation implements ShouldQueue
 {
-    use Queueable, SanitizesPhone;
+    use Queueable, RecordsContactEvent, SanitizesPhone;
 
     private int $id;
 
@@ -60,6 +61,7 @@ class StartTwinConversation implements ShouldQueue
         $data = $TwinService->sendMessage($phone, $candidate->candidate_estaff, $vars);
         if (! empty($data[0]['id'])) {
             Log::channel('app')->info('WHATSAPP message created', ['candidate_id' => $candidate->candidate_estaff]);
+            $this->recordContact($candidate->candidate_estaff, 'whatsapp');
         } else {
             Log::channel('app')->info('WHATSAPP message not created', ['candidate_id' => $candidate->candidate_estaff]);
         }

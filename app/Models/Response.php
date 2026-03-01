@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Response extends Model
 {
     /**
@@ -28,6 +29,11 @@ class Response extends Model
     protected $casts = [
         'sent_at' => 'datetime',
     ];
+
+    public function contactEvents(): HasMany
+    {
+        return $this->hasMany(ContactEvent::class);
+    }
 
     public function meta(): HasMany
     {
