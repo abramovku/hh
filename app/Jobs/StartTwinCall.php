@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class StartTwinCall implements ShouldQueue
 {
-    use Dispatchable, Queueable;
+    use Dispatchable, Queueable, SanitizesPhone;
 
     private int $candidate;
 
@@ -41,7 +42,7 @@ class StartTwinCall implements ShouldQueue
             return;
         }
 
-        $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
+        $phone = $this->sanitizePhone($candidateData['candidate']['mobile_phone']);
         Log::channel('app')->info('Start twin task for call', ['candidate' => $this->candidate]);
         $task = $TwinService->getCallTask();
         sleep(6);

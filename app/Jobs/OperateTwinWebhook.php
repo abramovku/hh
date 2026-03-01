@@ -60,7 +60,6 @@ class OperateTwinWebhook implements ShouldQueue
             $newTask->save();
         }
 
-        Log::channel('twin')->info('task added to queue', ['task' => $task->id ?? 0, 'id' =>
-            $this->data['callbackData']]);
+        Log::channel('twin')->info('task added to queue', ['task' => $task->id ?? 0, 'id' => $this->data['callbackData']]);
     }
 }

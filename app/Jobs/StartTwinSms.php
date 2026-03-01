@@ -3,13 +3,15 @@
 namespace App\Jobs;
 
 use App\Dictionaries\TestPhones;
+use App\Enums\EstaffEvent;
+use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
 class StartTwinSms implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SanitizesPhone;
 
     private int $id;
 
@@ -38,7 +40,7 @@ class StartTwinSms implements ShouldQueue
             return;
         }
 
-        $phone = str_replace(['+', '(', ')', '-', ' '], '', $candidateData['candidate']['mobile_phone']);
+        $phone = $this->sanitizePhone($candidateData['candidate']['mobile_phone']);
 
         /*if (!in_array($phone, TestPhones::PHONES)){
             Log::channel('app')->info("Phone not for test - reject", ['candidate_id' => $this->id]);
@@ -55,7 +57,7 @@ class StartTwinSms implements ShouldQueue
         $params = [
             'candidate' => [
                 'id' => $this->id,
-                'state_id' => 'event_type_51',
+                'state_id' => EstaffEvent::SmsSent->value,
             ],
         ];
 

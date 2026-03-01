@@ -16,6 +16,15 @@ class Estaff
         $this->client = new EstaffClient($config);
     }
 
+    private function call(string $method, string $endpoint, array $params): array
+    {
+        Log::channel('estaff')->info($method.' send', $params);
+        $data = $this->client->post($endpoint, $params);
+        Log::channel('estaff')->info($method.' get', $data);
+
+        return $data;
+    }
+
     public function findVacancy(int $id): array
     {
         Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
@@ -67,83 +76,47 @@ class Estaff
 
     public function addResponse(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/add', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/add', $params);
     }
 
     public function findVacancyFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('vacancy/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'vacancy/find', $params);
     }
 
     public function getCandidateFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/get', $params);
     }
 
     public function findCandidateFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/find', $params);
     }
 
     public function getVacancyFull(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('vacancy/get', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'vacancy/get', $params);
     }
 
     public function changeCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/change', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/change', $params);
     }
 
     public function setStateCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/set_state', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/set_state', $params);
     }
 
     public function eventCandidate(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('candidate/add_event', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'candidate/add_event', $params);
     }
 
     public function setWebhook(array $params): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', $params);
-        $data = $this->client->post('webhook/set', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'webhook/set', $params);
     }
 
     public function getWebhooks(): array
@@ -157,10 +130,6 @@ class Estaff
 
     public function deleteWebhook(string $id): array
     {
-        Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
-        $data = $this->client->post('webhook/delete', ['id' => $id]);
-        Log::channel('estaff')->info(__FUNCTION__.' get', $data);
-
-        return $data;
+        return $this->call(__FUNCTION__, 'webhook/delete', ['id' => $id]);
     }
 }

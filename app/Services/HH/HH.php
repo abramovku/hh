@@ -16,6 +16,27 @@ class HH
         $this->HHClient = new HHClient($config);
     }
 
+    private function getAllPages(string $url): array
+    {
+        $result = [];
+        $data = $this->HHClient->get($url);
+        if (! empty($data['items'])) {
+            $result = $data['items'];
+        }
+
+        if ($data['pages'] > 1) {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
+                $dataNew = $this->HHClient->get($url.$separator.'page='.$i);
+                if (! empty($dataNew['items'])) {
+                    $result = array_merge($result, $dataNew['items']);
+                }
+            }
+        }
+
+        return $result;
+    }
+
     public function baseInstall(string $code)
     {
         if (! empty($code)) {
@@ -35,21 +56,7 @@ class HH
     public function getManagers(): array
     {
         Log::channel('hh')->info(__FUNCTION__.' send');
-        $result = [];
-        $data = $this->HHClient->get('/employers/'.$this->config['employer'].'/managers');
-        if (! empty($data['items'])) {
-            $result = $data['items'];
-        }
-
-        if ($data['pages'] > 1) {
-            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
-                $dataNew = $this->HHClient->get('/employers/'.$this->config['employer'].'/managers?page='.$i);
-                if (! empty($dataNew['items'])) {
-                    $result = array_merge($result, $dataNew['items']);
-                }
-            }
-        }
-
+        $result = $this->getAllPages('/employers/'.$this->config['employer'].'/managers');
         Log::channel('hh')->info(__FUNCTION__.' get');
 
         return $result;
@@ -58,22 +65,7 @@ class HH
     public function getVacanciesByManager(int $id): array
     {
         Log::channel('hh')->info(__FUNCTION__.' send', ['id' => $id]);
-        $result = [];
-        $data = $this->HHClient->get('/employers/'.$this->config['employer']
-            .'/vacancies/active?manager_id='.$id);
-        if (! empty($data['items'])) {
-            $result = $data['items'];
-        }
-
-        if ($data['pages'] > 1) {
-            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
-                $dataNew = $this->HHClient->get('/employers/'.$this->config['employer']
-                    .'/vacancies/active?manager_id='.$id.'&page='.$i);
-                if (! empty($dataNew['items'])) {
-                    $result = array_merge($result, $dataNew['items']);
-                }
-            }
-        }
+        $result = $this->getAllPages('/employers/'.$this->config['employer'].'/vacancies/active?manager_id='.$id);
         Log::channel('hh')->info(__FUNCTION__.' get');
 
         return $result;
@@ -82,20 +74,7 @@ class HH
     public function getResponcesByVacancy(int $id): array
     {
         Log::channel('hh')->info(__FUNCTION__.' send', ['id' => $id]);
-        $result = [];
-        $data = $this->HHClient->get('/negotiations/response?vacancy_id='.$id);
-        if (! empty($data['items'])) {
-            $result = $data['items'];
-        }
-
-        if ($data['pages'] > 1) {
-            for ($i = 1; $i <= $data['pages'] - 1; $i++) {
-                $dataNew = $this->HHClient->get('/negotiations/response?vacancy_id='.$id.'&page='.$i);
-                if (! empty($dataNew['items'])) {
-                    $result = array_merge($result, $dataNew['items']);
-                }
-            }
-        }
+        $result = $this->getAllPages('/negotiations/response?vacancy_id='.$id);
         Log::channel('hh')->info(__FUNCTION__.' get');
 
         return $result;

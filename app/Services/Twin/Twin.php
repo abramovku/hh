@@ -37,8 +37,8 @@ class Twin
                     ],
                     'allowedTimeRanges' => [
                         [
-                            '9:00:00',
-                            '22:00:00',
+                            $this->config['allowed_time_from'],
+                            $this->config['allowed_time_to'],
                         ],
                     ],
                     'destinations' => [
@@ -71,7 +71,7 @@ class Twin
                     'channels' => [
                         'chat' => [
                             'chatId' => $this->config['chat_id'],
-                            'botId' => '22149404-13bd-400a-8088-13ee160752a5',
+                            'botId' => $this->config['cold_bot_id'],
                             'messengerType' => 'WHATSAPP',
                             'chatSessionName' => 'WA'.$today.'Холодный',
                             'provider' => 'TWIN',
@@ -79,8 +79,8 @@ class Twin
                     ],
                     'allowedTimeRanges' => [
                         [
-                            '9:00:00',
-                            '22:00:00',
+                            $this->config['allowed_time_from'],
+                            $this->config['allowed_time_to'],
                         ],
                     ],
                     'destinations' => [
@@ -110,8 +110,8 @@ class Twin
                     'useShortLinks' => false,
                     'channels' => [
                         'sms' => [
-                            'text' => 'Продавец в GJ\nОткликнуться ↓\nТГ: 2wn.me/beFth\nMAX: 2wn.me/beFti',
-                            'from' => 'GloriaJeans',
+                            'text' => $this->config['sms_text'],
+                            'from' => $this->config['sms_from'],
                         ],
                     ],
                     'destinations' => [
@@ -133,7 +133,7 @@ class Twin
     public function getCallTask(): string
     {
         $today = Carbon::now()->format('Y-m-d');
-        $type = 'Продавец-Кассир РФ';
+        $type = $this->config['call_type'];
 
         $task = CallTask::whereDate('date', '=', $today)
             ->where('type', $type)

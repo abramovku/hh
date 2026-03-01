@@ -2,13 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Enums\EstaffEvent;
+use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
 class StartTwinSmsDirect implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SanitizesPhone;
 
     private string $phone;
 
@@ -33,7 +35,7 @@ class StartTwinSmsDirect implements ShouldQueue
         $TwinService = app('twin');
         $EstaffService = app('estaff');
 
-        $phone = str_replace(['+', '(', ')', '-', ' '], '', $this->phone);
+        $phone = $this->sanitizePhone($this->phone);
 
         $data = $TwinService->sendSms($phone);
         if (! empty($data[0]['id'])) {
@@ -46,7 +48,7 @@ class StartTwinSmsDirect implements ShouldQueue
             $params = [
                 'candidate' => [
                     'id' => intval($this->candidate),
-                    'state_id' => 'event_type_51',
+                    'state_id' => EstaffEvent::SmsSent->value,
                 ],
             ];
 

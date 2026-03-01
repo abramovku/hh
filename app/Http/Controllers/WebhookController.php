@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EstaffEvent;
 use App\Http\Requests\EstaffWebhook;
 use App\Http\Requests\TwinTextWebhook;
 use App\Http\Requests\TwinVoiceWebhook;
@@ -24,12 +25,12 @@ class WebhookController extends Controller
 
         if ($data['event_type'] === 'candidate_state' && ! empty($data['data']['state_id'])) {
             switch ($data['data']['state_id']) {
-                case 'event_type_32':
+                case EstaffEvent::ManualConversation->value:
                     if (! empty($data['data']['vacancy_id']) && ! empty($data['data']['candidate_id'])) {
                         dispatch(new StartTwinManualConversation($data['data']['vacancy_id'], $data['data']['candidate_id']));
                     }
                     break;
-                case 'event_type_47':
+                case EstaffEvent::Call->value:
                     $task = TwinTask::where('candidate_id', $data['data']['candidate_id'])->first();
                     if (! empty($task)) {
                         DB::table('jobs')
@@ -40,10 +41,10 @@ class WebhookController extends Controller
                     }
                     dispatch(new StartTwinCall($data['data']['candidate_id']));
                     break;
-                case 'event_type_44':
+                case EstaffEvent::Sms->value:
                     dispatch(new StartTwinSms($data['data']['candidate_id']));
                     break;
-                case 'event_type_48':
+                case EstaffEvent::ColdConversation->value:
                     if (! empty($data['data']['candidate_id'])) {
                         dispatch(new StartTwinColdConversation(
                             $data['data']['candidate_id'],
