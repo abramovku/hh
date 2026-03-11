@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ResponsesController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CallbackController;
 use Illuminate\Support\Facades\Route;
 

@@ -19,9 +19,11 @@ class ResponsesController extends Controller
         }
 
         if ($request->filled('phone')) {
-            $query->whereHas('meta', fn ($q) => $q
-                ->where('key', 'cell')
-                ->where('value', 'like', '%'.$request->phone.'%')
+            $query->whereHas(
+                'meta',
+                fn ($q) => $q
+                    ->where('key', 'cell')
+                    ->where('value', 'like', '%'.$request->phone.'%')
             );
         }
 
