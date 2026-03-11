@@ -28,16 +28,25 @@ class Estaff
     public function findVacancy(int $id): array
     {
         Log::channel('estaff')->info(__FUNCTION__.' send', ['id' => $id]);
-        $params = [
-            'filter' => [
-                'cs_id_hh_1' => "$id",
-            ],
-            'field_names' => ['user_id'],
-        ];
-        $data = $this->client->post('vacancy/find', $params);
-        Log::channel('estaff')->info(__FUNCTION__.' get', ['id' => $id]);
 
-        return $data['vacancies'][0] ?? [];
+        foreach (['cs_id_hh_1', 'cs_hh_add1', 'cs_hh_add2'] as $field) {
+            $params = [
+                'filter' => [
+                    $field => "$id",
+                ],
+                'field_names' => ['user_id'],
+            ];
+            $data = $this->client->post('vacancy/find', $params);
+            if (! empty($data['vacancies'][0])) {
+                Log::channel('estaff')->info(__FUNCTION__.' get', ['id' => $id, 'field' => $field]);
+
+                return $data['vacancies'][0];
+            }
+        }
+
+        Log::channel('estaff')->info(__FUNCTION__.' not found', ['id' => $id]);
+
+        return [];
     }
 
     public function getVacancy(int $id, array $fields = []): array
