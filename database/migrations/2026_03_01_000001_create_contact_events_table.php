@@ -10,7 +10,8 @@ return new class() extends Migration
     {
         Schema::create('contact_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('response_id')->nullable()->constrained('responses')->nullOnDelete();
+            $table->unsignedInteger('response_id')->nullable();
+            $table->foreign('response_id')->references('id')->on('responses')->nullOnDelete();
             $table->string('type');
             $table->timestamps();
         });
