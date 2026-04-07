@@ -69,5 +69,7 @@ return [
         'call_type' => env('TWIN_CALL_TYPE', 'Продавец-Кассир РФ'),
         'allowed_time_from' => env('TWIN_ALLOWED_TIME_FROM', '9:00:00'),
         'allowed_time_to' => env('TWIN_ALLOWED_TIME_TO', '22:00:00'),
+        'allow_call_time_from' => (int) env('TWIN_ALLOW_CALL_TIME_FROM', 32400),
+        'allow_call_time_to' => (int) env('TWIN_ALLOW_CALL_TIME_TO', 79200),
     ],
 ];
