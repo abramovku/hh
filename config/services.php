@@ -46,6 +46,14 @@ return [
         'url' => env('ESTAFF_API_URL'),
         'token' => env('ESTAFF_TOKEN'),
     ],
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+    'monitor' => [
+        'failed_jobs_limit' => env('FAILED_JOBS_LIMIT', 5),
+        'notify_cooldown' => env('FAILED_JOBS_NOTIFY_COOLDOWN', 3600),
+    ],
     'twin' => [
         'auth_url' => env('TWIN_AUTH_URL'),
         'auth_email' => env('TWIN_AUTH_EMAIL'),

@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
@@ -25,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Queue::failing(function () {
+            app(\App\Services\Monitor\FailedJobsMonitor::class)->check();
+        });
+
         $this->app->bind('GuzzleClient', function () {
 
             $stack = HandlerStack::create();
