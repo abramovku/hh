@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use App\Enums\EstaffEvent;
 
 class OperateTwinVoiceWebhook implements ShouldQueue
 {
@@ -30,6 +31,8 @@ class OperateTwinVoiceWebhook implements ShouldQueue
         $flowStatuses = ['ANSWERED', 'DIAL', 'INPROGRESS'];
 
         $TwinService = app('twin');
+        $EstaffService = app('estaff');
+
         if (empty($this->data['taskId']) || empty($this->data['lastCallId'])) {
             Log::channel('twin')->info('voice webhook missing data', ['data' => $this->data]);
 
@@ -44,18 +47,33 @@ class OperateTwinVoiceWebhook implements ShouldQueue
 
             if (
                 ! empty($data['items'][0]['currentStatusName'])
-                && ! empty($data['items'][0]['number'])
+                && ! empty($this->data['callbackData']['EStaffID'])
                 && ! in_array($data['items'][0]['currentStatusName'], $flowStatuses)
             ) {
-                dispatch(new StartTwinSmsDirect(
-                    $data['items'][0]['number'],
-                    $this->data['callbackData']['EStaffID'] ?? ''
-                ));
-                Log::channel('twin')->info('voice webhook send sms', ['data' => $this->data]);
+                $params = [
+                    'candidate' => [
+                        'id' => $this->data['callbackData']['EStaffID'],
+                        'state_id' => EstaffEvent::VoiceWebhook->value,
+                    ],
+                ];
+
+                try {
+                    $EstaffService->setStateCandidate($params);
+                    Log::channel('twin')->info("voice webhook status changed", ['data' => $this->data]);
+                } catch (\Exception $e) {
+                    Log::channel('app')->error(
+                        'voice webhook change status error',
+                        [
+                            'message' => $e->getMessage(),
+                            'file' => $e->getFile(),
+                            'line' => $e->getLine(),
+                        ]
+                    );
+                }
 
                 return;
             }
-            Log::channel('twin')->info("voice webhook don't send sms", ['data' => $this->data]);
+            Log::channel('twin')->info("voice webhook don't need to change status", ['data' => $this->data]);
         }
     }
 }

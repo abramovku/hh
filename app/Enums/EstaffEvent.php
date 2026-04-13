@@ -9,4 +9,5 @@ enum EstaffEvent: string
     case Sms = 'event_type_44';
     case ColdConversation = 'event_type_48';
     case SmsSent = 'event_type_51';
+    case VoiceWebhook = 'event_type_35';
 }
