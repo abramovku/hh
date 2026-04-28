@@ -20,6 +20,7 @@ class EstaffClient
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer '.$config['token'],
             ],
+            'timeout' => 40
         ]);
     }
 
