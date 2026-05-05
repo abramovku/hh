@@ -42,7 +42,7 @@ class WebhookController extends Controller
                     dispatch(new StartTwinCall($data['data']['candidate_id']));
                     break;
                 case EstaffEvent::Sms->value:
-                    dispatch(new StartTwinSms($data['data']['candidate_id']));
+                    //dispatch(new StartTwinSms($data['data']['candidate_id']));
                     break;
                 case EstaffEvent::ColdConversation->value:
                     if (! empty($data['data']['candidate_id'])) {
