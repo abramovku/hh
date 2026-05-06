@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\EndpointController;
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('health/estaff', [HealthController::class, 'estaff'])->name('health.estaff');
 
 Route::post('estaff-webhooks', [WebhookController::class, 'estaffWebhooks'])->name('estaff.webhook');
 Route::post('twin-webhooks', [WebhookController::class, 'twinWebhooks'])->name('twin.webhook');

@@ -2,6 +2,7 @@
 
 namespace App\Services\Estaff;
 
+use GuzzleHttp\TransferStats;
 use Illuminate\Support\Facades\Log;
 
 class Estaff
@@ -140,5 +141,38 @@ class Estaff
     public function deleteWebhook(string $id): array
     {
         return $this->call(__FUNCTION__, 'webhook/delete', ['id' => $id]);
+    }
+
+    public function ping(): array
+    {
+        $url = rtrim($this->config['url'], '/').'/openapi.html';
+        $transferStats = null;
+        $httpCode = 0;
+        $error = null;
+
+        $client = app('GuzzleClient')(['timeout' => 10]);
+
+        try {
+            $response = $client->request('GET', $url, [
+                'http_errors' => false,
+                'verify' => false,
+                'on_stats' => function (TransferStats $stats) use (&$transferStats) {
+                    $transferStats = $stats;
+                },
+            ]);
+            $httpCode = $response->getStatusCode();
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        $handlerStats = $transferStats ? $transferStats->getHandlerStats() : [];
+
+        return [
+            'success' => $httpCode > 0 && $error === null,
+            'http_code' => $httpCode,
+            'connect_ms' => round(($handlerStats['connect_time'] ?? 0) * 1000),
+            'total_ms' => round(($transferStats ? $transferStats->getTransferTime() : 0) * 1000),
+            'error' => $error,
+        ];
     }
 }
