@@ -39,6 +39,14 @@ class ResponsesController extends Controller
             $query->whereHas('contactEvents', fn ($q) => $q->where('type', 'whatsapp'));
         }
 
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         $responses = $query->paginate(50)->withQueryString();
 
         return view('admin.responses.index', compact('responses'));

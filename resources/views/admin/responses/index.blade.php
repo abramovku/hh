@@ -27,6 +27,24 @@
                 class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
         </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">С даты</label>
+            <input
+                type="date"
+                name="date_from"
+                value="{{ request('date_from') }}"
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">По дату</label>
+            <input
+                type="date"
+                name="date_to"
+                value="{{ request('date_to') }}"
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
         <div class="flex items-center gap-4 pb-0.5">
             <label class="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                 <input type="checkbox" name="called" value="1" {{ request()->boolean('called') ? 'checked' : '' }} class="rounded">

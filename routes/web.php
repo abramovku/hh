@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\LogsController;
 use App\Http\Controllers\Admin\ResponsesController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CallbackController;
@@ -19,4 +20,5 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/responses', [ResponsesController::class, 'index'])->name('responses');
+    Route::get('/logs', [LogsController::class, 'index'])->name('logs');
 });

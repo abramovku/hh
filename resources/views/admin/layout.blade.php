@@ -24,6 +24,12 @@
                     >
                         Отклики
                     </a>
+                    <a
+                        href="{{ route('admin.logs') }}"
+                        class="text-sm {{ request()->routeIs('admin.logs') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-gray-900' }}"
+                    >
+                        Логи
+                    </a>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
