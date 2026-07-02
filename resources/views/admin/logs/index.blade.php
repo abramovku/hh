@@ -66,7 +66,12 @@
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-200">
                 <tr>
-                    <th class="px-4 py-3">Дата</th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => $sort === 'asc' ? 'desc' : 'asc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            Дата
+                            <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                        </a>
+                    </th>
                     <th class="px-4 py-3">Канал</th>
                     <th class="px-4 py-3">Уровень</th>
                     <th class="px-4 py-3">Сообщение</th>

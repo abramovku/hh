@@ -11,8 +11,10 @@ class ResponsesController extends Controller
 {
     public function index(Request $request): View
     {
+        $sort = $request->get('sort') === 'asc' ? 'asc' : 'desc';
+
         $query = Response::with(['contactEvents', 'meta' => fn ($q) => $q->where('key', 'cell')])
-            ->latest();
+            ->orderBy('created_at', $sort);
 
         if ($request->filled('vacancy')) {
             $query->where('vacancy_id', $request->vacancy);
@@ -49,6 +51,6 @@ class ResponsesController extends Controller
 
         $responses = $query->paginate(50)->withQueryString();
 
-        return view('admin.responses.index', compact('responses'));
+        return view('admin.responses.index', compact('responses', 'sort'));
     }
 }

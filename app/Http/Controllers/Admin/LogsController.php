@@ -6,12 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\LogEntry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class LogsController extends Controller
 {
+    private const CHANNELS = ['app', 'hh', 'estaff', 'twin'];
+
+    private const LEVELS = ['DEBUG', 'INFO', 'NOTICE', 'WARNING', 'ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'];
+
     public function index(Request $request): View
     {
-        $query = LogEntry::query()->latest('id');
+        $sort = $request->get('sort') === 'asc' ? 'asc' : 'desc';
+
+        $query = LogEntry::query()->orderBy('created_at', $sort)->orderBy('id', $sort);
 
         if ($request->filled('channel')) {
             $query->where('channel', $request->channel);
@@ -26,18 +33,20 @@ class LogsController extends Controller
         }
 
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->where('created_at', '>=', Carbon::parse($request->date_from)->startOfDay());
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->where('created_at', '<=', Carbon::parse($request->date_to)->endOfDay());
         }
 
-        $logs = $query->paginate(50)->withQueryString();
+        $logs = $query->simplePaginate(50)->withQueryString();
 
-        $channels = LogEntry::query()->distinct()->orderBy('channel')->pluck('channel');
-        $levels = LogEntry::query()->distinct()->orderBy('level_name')->pluck('level_name');
-
-        return view('admin.logs.index', compact('logs', 'channels', 'levels'));
+        return view('admin.logs.index', [
+            'logs' => $logs,
+            'channels' => self::CHANNELS,
+            'levels' => self::LEVELS,
+            'sort' => $sort,
+        ]);
     }
 }

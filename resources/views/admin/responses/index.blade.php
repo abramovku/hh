@@ -76,7 +76,12 @@
                     <th class="px-4 py-3">Vacancy HH</th>
                     <th class="px-4 py-3">Estaff кандидат</th>
                     <th class="px-4 py-3">Телефон</th>
-                    <th class="px-4 py-3">Создан</th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => $sort === 'asc' ? 'desc' : 'asc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            Создан
+                            <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                        </a>
+                    </th>
                     <th class="px-4 py-3">Синхронизирован</th>
                     <th class="px-3 py-3 text-center">Звонок</th>
                     <th class="px-3 py-3 text-center">SMS</th>
