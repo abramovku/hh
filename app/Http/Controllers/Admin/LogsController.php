@@ -28,12 +28,12 @@ class LogsController extends Controller
             $query->where('level_name', $request->level);
         }
 
-        if ($request->filled('message')) {
-            $query->whereRaw('id IN (SELECT rowid FROM log_fts WHERE log_fts MATCH ?)', [$this->ftsQuery('message', $request->message)]);
+        if ($request->filled('message') && ($fts = $this->ftsQuery($request->message)) !== '') {
+            $query->whereFullText('message', $fts, ['mode' => 'boolean']);
         }
 
-        if ($request->filled('context')) {
-            $query->whereRaw('id IN (SELECT rowid FROM log_fts WHERE log_fts MATCH ?)', [$this->ftsQuery('context', $request->context)]);
+        if ($request->filled('context') && ($fts = $this->ftsQuery($request->context)) !== '') {
+            $query->whereFullText('context', $fts, ['mode' => 'boolean']);
         }
 
         if ($request->filled('date_from')) {
@@ -54,8 +54,10 @@ class LogsController extends Controller
         ]);
     }
 
-    private function ftsQuery(string $column, string $term): string
+    private function ftsQuery(string $term): string
     {
-        return $column.' : "'.str_replace('"', '""', $term).'"*';
+        $words = preg_split('/[^\p{L}\p{N}_]+/u', $term, -1, PREG_SPLIT_NO_EMPTY);
+
+        return collect($words)->map(fn (string $word) => '+'.$word.'*')->implode(' ');
     }
 }
