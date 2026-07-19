@@ -29,11 +29,11 @@ class LogsController extends Controller
         }
 
         if ($request->filled('message')) {
-            $query->where('message', 'like', '%'.$request->message.'%');
+            $query->whereRaw('id IN (SELECT rowid FROM log_fts WHERE log_fts MATCH ?)', [$this->ftsQuery('message', $request->message)]);
         }
 
         if ($request->filled('context')) {
-            $query->where('context', 'like', '%'.$request->context.'%');
+            $query->whereRaw('id IN (SELECT rowid FROM log_fts WHERE log_fts MATCH ?)', [$this->ftsQuery('context', $request->context)]);
         }
 
         if ($request->filled('date_from')) {
@@ -52,5 +52,10 @@ class LogsController extends Controller
             'levels' => self::LEVELS,
             'sort' => $sort,
         ]);
+    }
+
+    private function ftsQuery(string $column, string $term): string
+    {
+        return $column.' : "'.str_replace('"', '""', $term).'"*';
     }
 }
