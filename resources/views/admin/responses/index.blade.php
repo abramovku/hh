@@ -72,9 +72,30 @@
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-200">
                 <tr>
-                    <th class="px-4 py-3">HH resp. ID</th>
-                    <th class="px-4 py-3">Vacancy HH</th>
-                    <th class="px-4 py-3">Estaff кандидат</th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'response_id', 'sort' => $sortBy === 'response_id' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            HH resp. ID
+                            @if ($sortBy === 'response_id')
+                                <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'vacancy_id', 'sort' => $sortBy === 'vacancy_id' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            Vacancy HH
+                            @if ($sortBy === 'vacancy_id')
+                                <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'candidate_estaff', 'sort' => $sortBy === 'candidate_estaff' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            Estaff кандидат
+                            @if ($sortBy === 'candidate_estaff')
+                                <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th class="px-4 py-3">
                         <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'phone', 'sort' => $sortBy === 'phone' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
                             Телефон

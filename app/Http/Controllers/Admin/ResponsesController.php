@@ -12,7 +12,8 @@ class ResponsesController extends Controller
     public function index(Request $request): View
     {
         $sort = $request->get('sort') === 'asc' ? 'asc' : 'desc';
-        $sortBy = $request->get('sort_by') === 'phone' ? 'phone' : 'created_at';
+        $sortable = ['created_at', 'phone', 'response_id', 'vacancy_id', 'candidate_estaff'];
+        $sortBy = in_array($request->get('sort_by'), $sortable, true) ? $request->get('sort_by') : 'created_at';
 
         $query = Response::with('contactEvents')->orderBy($sortBy, $sort);
 
