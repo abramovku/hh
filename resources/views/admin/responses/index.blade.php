@@ -13,7 +13,7 @@
                 type="text"
                 name="phone"
                 value="{{ request('phone') }}"
-                placeholder="+7..."
+                placeholder="7..."
                 class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
         </div>
@@ -75,11 +75,20 @@
                     <th class="px-4 py-3">HH resp. ID</th>
                     <th class="px-4 py-3">Vacancy HH</th>
                     <th class="px-4 py-3">Estaff кандидат</th>
-                    <th class="px-4 py-3">Телефон</th>
                     <th class="px-4 py-3">
-                        <a href="{{ request()->fullUrlWithQuery(['sort' => $sort === 'asc' ? 'desc' : 'asc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'phone', 'sort' => $sortBy === 'phone' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
+                            Телефон
+                            @if ($sortBy === 'phone')
+                                <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-4 py-3">
+                        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort' => $sortBy === 'created_at' && $sort === 'desc' ? 'asc' : 'desc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
                             Создан
-                            <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @if ($sortBy === 'created_at')
+                                <span class="text-gray-400">{{ $sort === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
                         </a>
                     </th>
                     <th class="px-4 py-3">Синхронизирован</th>
@@ -92,7 +101,6 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($responses as $response)
                     @php
-                        $phone = $response->meta->first()?->value ?? '—';
                         $types = $response->contactEvents->pluck('type')->unique();
                         $hasSent = ! is_null($response->sent_at);
                     @endphp
@@ -100,7 +108,7 @@
                         <td class="px-4 py-2.5 font-mono text-gray-700">{{ $response->response_id }}</td>
                         <td class="px-4 py-2.5 text-gray-600">{{ $response->vacancy_id }}</td>
                         <td class="px-4 py-2.5 text-gray-600">{{ $response->candidate_estaff ?? '—' }}</td>
-                        <td class="px-4 py-2.5 text-gray-600">{{ $phone }}</td>
+                        <td class="px-4 py-2.5 text-gray-600">{{ $response->phone ?? '—' }}</td>
                         <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{{ $response->created_at?->format('d.m.Y H:i') }}</td>
                         <td class="px-4 py-2.5 text-center">
                             @if ($hasSent)

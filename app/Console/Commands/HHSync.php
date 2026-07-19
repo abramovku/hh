@@ -3,11 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Models\Response;
+use App\Traits\SanitizesPhone;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class HHSync extends Command
 {
+    use SanitizesPhone;
+
     /**
      * The name and signature of the console command.
      *
@@ -206,6 +209,13 @@ class HHSync extends Command
                                 if (! empty($cell)) {
                                     $response->meta()->create(
                                         ['key' => 'cell', 'value' => $cell]
+                                    );
+
+                                    $phone = $this->sanitizePhone($cell);
+                                    $response->phone = $phone;
+                                    $response->save();
+                                    $response->meta()->create(
+                                        ['key' => 'cell_clean', 'value' => $phone]
                                     );
                                 }
 

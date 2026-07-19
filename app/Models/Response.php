@@ -23,6 +23,7 @@ class Response extends Model
         'sent_at',
         'vacancy_estaff',
         'candidate_estaff',
+        'phone',
     ];
 
     protected $casts = [

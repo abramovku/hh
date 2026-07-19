@@ -12,21 +12,16 @@ class ResponsesController extends Controller
     public function index(Request $request): View
     {
         $sort = $request->get('sort') === 'asc' ? 'asc' : 'desc';
+        $sortBy = $request->get('sort_by') === 'phone' ? 'phone' : 'created_at';
 
-        $query = Response::with(['contactEvents', 'meta' => fn ($q) => $q->where('key', 'cell')])
-            ->orderBy('created_at', $sort);
+        $query = Response::with('contactEvents')->orderBy($sortBy, $sort);
 
         if ($request->filled('vacancy')) {
             $query->where('vacancy_id', $request->vacancy);
         }
 
         if ($request->filled('phone')) {
-            $query->whereHas(
-                'meta',
-                fn ($q) => $q
-                    ->where('key', 'cell')
-                    ->where('value', 'like', '%'.$request->phone.'%')
-            );
+            $query->where('phone', 'like', '%'.preg_replace('/\D+/', '', $request->phone).'%');
         }
 
         if ($request->boolean('called')) {
@@ -51,6 +46,6 @@ class ResponsesController extends Controller
 
         $responses = $query->paginate(50)->withQueryString();
 
-        return view('admin.responses.index', compact('responses', 'sort'));
+        return view('admin.responses.index', compact('responses', 'sort', 'sortBy'));
     }
 }
