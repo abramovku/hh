@@ -31,7 +31,17 @@
                 type="text"
                 name="message"
                 value="{{ request('message') }}"
-                placeholder="Поиск по тексту..."
+                placeholder="Поиск по сообщению..."
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Контекст</label>
+            <input
+                type="text"
+                name="context"
+                value="{{ request('context') }}"
+                placeholder="Поиск по контексту..."
                 class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
         </div>

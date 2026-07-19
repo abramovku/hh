@@ -29,12 +29,11 @@ class LogsController extends Controller
         }
 
         if ($request->filled('message')) {
-            $search = '%'.$request->message.'%';
-            $query->where(function ($q) use ($search) {
-                $q->where('message', 'like', $search)
-                    ->orWhere('context', 'like', $search)
-                    ->orWhere('extra', 'like', $search);
-            });
+            $query->where('message', 'like', '%'.$request->message.'%');
+        }
+
+        if ($request->filled('context')) {
+            $query->where('context', 'like', '%'.$request->context.'%');
         }
 
         if ($request->filled('date_from')) {
