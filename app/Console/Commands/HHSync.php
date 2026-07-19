@@ -140,12 +140,16 @@ class HHSync extends Command
                                     }
                                 }
 
-                                if (empty($email) && empty($cell)) {
-                                    Log::channel('hh')->info("response haven't email and cell", [
+                                if (empty($email) || empty($cell)) {
+                                    $missing = implode(' and ', array_keys(array_filter([
+                                        'cell' => empty($cell),
+                                        'email' => empty($email),
+                                    ])));
+                                    Log::channel('hh')->info("response haven't {$missing}", [
                                         'vacancy' => $vacancy['id'],
                                         'response' => $item['id'],
                                     ]);
-                                    $response->error = "response haven't email and cell";
+                                    $response->error = "response haven't {$missing}";
                                     $response->save();
                                     continue;
                                 }
