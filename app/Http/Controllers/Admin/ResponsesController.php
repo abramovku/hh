@@ -17,8 +17,8 @@ class ResponsesController extends Controller
 
         $query = Response::with('contactEvents')->orderBy($sortBy, $sort);
 
-        if ($sortBy === 'phone') {
-            $query->whereNotNull('phone')->where('phone', '!=', '');
+        if (in_array($sortBy, ['phone', 'vacancy_id', 'candidate_estaff'], true)) {
+            $query->whereNotNull($sortBy)->where($sortBy, '!=', '');
         }
 
         if ($request->filled('vacancy')) {
