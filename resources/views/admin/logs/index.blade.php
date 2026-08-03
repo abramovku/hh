@@ -105,7 +105,7 @@
                     @endphp
                     <tr class="hover:bg-gray-50 align-top">
                         <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{{ $log->created_at?->format('d.m.Y H:i:s') }}</td>
-                        <td class="px-4 py-2.5 text-gray-600 whitespace-nowrap">{{ $log->channel }}</td>
+                        <td class="px-4 py-2.5 text-gray-600 whitespace-nowrap">{{ $channelLabels[$log->channel] ?? $log->channel }}</td>
                         <td class="px-4 py-2.5 whitespace-nowrap">
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $badge }}">{{ $log->level_name }}</span>
                         </td>

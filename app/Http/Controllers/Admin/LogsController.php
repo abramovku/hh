@@ -10,7 +10,8 @@ use Illuminate\Support\Carbon;
 
 class LogsController extends Controller
 {
-    private const CHANNELS = ['app', 'hh', 'estaff', 'twin'];
+    // Slug => monolog logger name stored in the `channel` column (see `name` in config/logging.php)
+    private const CHANNELS = ['app' => 'AppLog', 'hh' => 'HHLog', 'estaff' => 'EstaffLog', 'twin' => 'TwinLog'];
 
     private const LEVELS = ['DEBUG', 'INFO', 'NOTICE', 'WARNING', 'ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'];
 
@@ -20,8 +21,8 @@ class LogsController extends Controller
 
         $query = LogEntry::query()->orderBy('created_at', $sort)->orderBy('id', $sort);
 
-        if ($request->filled('channel')) {
-            $query->where('channel', $request->channel);
+        if ($request->filled('channel') && isset(self::CHANNELS[$request->channel])) {
+            $query->where('channel', self::CHANNELS[$request->channel]);
         }
 
         if ($request->filled('level')) {
@@ -48,7 +49,8 @@ class LogsController extends Controller
 
         return view('admin.logs.index', [
             'logs' => $logs,
-            'channels' => self::CHANNELS,
+            'channels' => array_keys(self::CHANNELS),
+            'channelLabels' => array_flip(self::CHANNELS),
             'levels' => self::LEVELS,
             'sort' => $sort,
         ]);
