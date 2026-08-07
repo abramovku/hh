@@ -8,6 +8,16 @@
     {{-- Фильтры --}}
     <form method="GET" action="{{ route('admin.logs') }}" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-wrap gap-3 items-end">
         <div>
+            <label class="block text-xs text-gray-500 mb-1">ID</label>
+            <input
+                type="number"
+                name="id"
+                value="{{ request('id') }}"
+                placeholder="ID записи..."
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <div>
             <label class="block text-xs text-gray-500 mb-1">Канал</label>
             <select name="channel" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Все</option>
@@ -76,6 +86,7 @@
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-200">
                 <tr>
+                    <th class="px-4 py-3">ID</th>
                     <th class="px-4 py-3">
                         <a href="{{ request()->fullUrlWithQuery(['sort' => $sort === 'asc' ? 'desc' : 'asc', 'page' => null]) }}" class="inline-flex items-center gap-1 hover:text-gray-800">
                             Дата
@@ -104,6 +115,7 @@
                         $badge = $levelColors[$log->level_name] ?? 'bg-gray-100 text-gray-600';
                     @endphp
                     <tr class="hover:bg-gray-50 align-top">
+                        <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{{ $log->id }}</td>
                         <td class="px-4 py-2.5 text-gray-500 whitespace-nowrap">{{ $log->created_at?->format('d.m.Y H:i:s') }}</td>
                         <td class="px-4 py-2.5 text-gray-600 whitespace-nowrap">{{ $channelLabels[$log->channel] ?? $log->channel }}</td>
                         <td class="px-4 py-2.5 whitespace-nowrap">
@@ -123,7 +135,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-gray-400">Логи не найдены</td>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">Логи не найдены</td>
                     </tr>
                 @endforelse
             </tbody>

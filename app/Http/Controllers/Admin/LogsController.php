@@ -21,6 +21,10 @@ class LogsController extends Controller
 
         $query = LogEntry::query()->orderBy('created_at', $sort)->orderBy('id', $sort);
 
+        if ($request->filled('id')) {
+            $query->where('id', (int) $request->id);
+        }
+
         if ($request->filled('channel') && isset(self::CHANNELS[$request->channel])) {
             $query->where('channel', self::CHANNELS[$request->channel]);
         }
