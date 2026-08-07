@@ -35,12 +35,6 @@ class Twin
                             'provider' => 'TWIN',
                         ],
                     ],
-                    'allowedTimeRanges' => [
-                        [
-                            $this->config['allowed_time_from'],
-                            $this->config['allowed_time_to'],
-                        ],
-                    ],
                     'destinations' => [
                         [
                             'variables' => $vars,
@@ -75,12 +69,6 @@ class Twin
                             'messengerType' => 'WHATSAPP',
                             'chatSessionName' => 'WA'.$today.'Холодный',
                             'provider' => 'TWIN',
-                        ],
-                    ],
-                    'allowedTimeRanges' => [
-                        [
-                            $this->config['allowed_time_from'],
-                            $this->config['allowed_time_to'],
                         ],
                     ],
                     'destinations' => [
