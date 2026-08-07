@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\EstaffEvent;
 use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -50,6 +51,28 @@ class StartTwinCall implements ShouldQueue
 
         Log::channel('app')->info('Start twin call to candidate', ['candidate' => $this->candidate]);
         $TwinService->makeCallToCandidate($task, $phone, $this->candidate);
+
+        $params = [
+            'candidate' => [
+                'id' => $this->candidate,
+                'state_id' => EstaffEvent::BeforeCall->value,
+            ],
+        ];
+
+        try {
+            $EstaffService->setStateCandidate($params);
+            Log::channel('twin')->info("Candidate status before call changed", ['data' => $this->candidate]);
+        } catch (\Exception $e) {
+            Log::channel('app')->error(
+                'candidate status before call change status error',
+                [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]
+            );
+        }
+
         $this->recordContact($this->candidate, 'call');
     }
 }
