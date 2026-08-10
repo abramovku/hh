@@ -30,7 +30,9 @@ class OperateTwinWebhook implements ShouldQueue
     {
         $flowStatuses = ['PENDING', 'DELAYED', 'UNDELIVERED', 'ERROR', 'PAUSED'];
 
-        $task = TwinTask::where('candidate_id', intval($this->data['callbackData']))->first();
+        $task = TwinTask::where('candidate_id', intval($this->data['callbackData']))
+            ->where('created_at', '>=', now()->subDay())
+            ->first();
 
         if (! in_array($this->data['newStatus'], $flowStatuses)) {
             Log::channel('twin')->info('task can be removed from queue', $this->data);

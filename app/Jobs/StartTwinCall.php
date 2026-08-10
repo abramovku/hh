@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\EstaffEvent;
+use App\Models\TwinTask;
 use App\Traits\RecordsContactEvent;
 use App\Traits\SanitizesPhone;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,6 +35,12 @@ class StartTwinCall implements ShouldQueue
     public function handle(): void
     {
         Log::channel('app')->info('Start twin call job', ['candidate' => $this->candidate]);
+
+        $deleted = TwinTask::where('candidate_id', $this->candidate)->delete();
+        if ($deleted) {
+            Log::channel('twin')->info('twin tasks deleted for candidate', ['candidate' => $this->candidate, 'count' => $deleted]);
+        }
+
         $TwinService = app('twin');
         $EstaffService = app('estaff');
         $candidateData = $EstaffService->getCandidate($this->candidate);
@@ -61,7 +68,7 @@ class StartTwinCall implements ShouldQueue
 
         try {
             $EstaffService->setStateCandidate($params);
-            Log::channel('twin')->info("Candidate status before call changed", ['data' => $this->candidate]);
+            Log::channel('twin')->info('Candidate status before call changed', ['data' => $this->candidate]);
         } catch (\Exception $e) {
             Log::channel('app')->error(
                 'candidate status before call change status error',
