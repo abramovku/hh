@@ -25,6 +25,14 @@ class ResponsesController extends Controller
             $query->where('vacancy_id', $request->vacancy);
         }
 
+        if ($request->filled('hh_id')) {
+            $query->where('response_id', trim($request->hh_id));
+        }
+
+        if ($request->filled('estaff_id')) {
+            $query->where('candidate_estaff', trim($request->estaff_id));
+        }
+
         if ($request->filled('phone')) {
             $query->where('phone', 'like', '%'.preg_replace('/\D+/', '', $request->phone).'%');
         }

@@ -28,6 +28,26 @@
             >
         </div>
         <div>
+            <label class="block text-xs text-gray-500 mb-1">HH ID</label>
+            <input
+                type="text"
+                name="hh_id"
+                value="{{ request('hh_id') }}"
+                placeholder="HH response ID"
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Estaff ID</label>
+            <input
+                type="text"
+                name="estaff_id"
+                value="{{ request('estaff_id') }}"
+                placeholder="Estaff candidate ID"
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <div>
             <label class="block text-xs text-gray-500 mb-1">С даты</label>
             <input
                 type="date"
