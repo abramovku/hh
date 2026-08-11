@@ -3,11 +3,14 @@
 namespace App\Services\Twin;
 
 use App\Models\CallTask;
+use App\Traits\GeneratesRid;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class Twin
 {
+    use GeneratesRid;
+
     private $config;
 
     private $client;
@@ -20,7 +23,8 @@ class Twin
 
     public function sendMessage(string $phone, int $id, array $vars)
     {
-        Log::channel('twin')->info(__FUNCTION__.' prepare', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' prepare', ['rid' => $rid, 'phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
         $today = Carbon::now()->format('Y-m-d');
         $data = [
             'messages' => [
@@ -47,16 +51,17 @@ class Twin
             ],
         ];
 
-        Log::channel('twin')->info(__FUNCTION__.' send', $data);
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
         $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         return $result;
     }
 
     public function sendMessageCold(string $phone, int $id, array $vars)
     {
-        Log::channel('twin')->info(__FUNCTION__.' prepare', ['phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' prepare', ['rid' => $rid, 'phone' => $phone, 'candidate_id' => $id, 'vars' => $vars]);
         $today = Carbon::now()->format('Y-m-d');
         $data = [
             'messages' => [
@@ -83,15 +88,16 @@ class Twin
             ],
         ];
 
-        Log::channel('twin')->info(__FUNCTION__.' send', $data);
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
         $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         return $result;
     }
 
     public function sendSms(string $phone)
     {
+        $rid = $this->newRid();
         $data = [
             'messages' => [
                 [
@@ -111,9 +117,9 @@ class Twin
             ],
         ];
 
-        Log::channel('twin')->info(__FUNCTION__.' send', $data);
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
         $result = $this->client->post('https://notify.twin24.ai/api/v1/messages', $data);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         return $result;
     }
@@ -201,9 +207,10 @@ class Twin
             'callbackData' => [],
         ];
 
-        Log::channel('twin')->info(__FUNCTION__.' send', $data);
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
         $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCall', $data);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         if (! empty($result['id']['identity'])) {
             CallTask::create([
@@ -235,19 +242,21 @@ class Twin
             ],
             'forceStart' => true,
         ];
-        Log::channel('twin')->info(__FUNCTION__.' send', $data);
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
         $result = $this->client->post('https://cis.twin24.ai/api/v1/telephony/autoCallCandidate/batch', $data);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         return $result;
     }
 
     public function getDataCall(string $taskId, string $id)
     {
-        Log::channel('twin')->info(__FUNCTION__.' send', ['taskId' => $taskId, 'id' => $id]);
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid, 'taskId' => $taskId, 'id' => $id]);
         $result = $this->client->get('https://twin24.ai/analyse/api/v1/search/cis/sessions?fields=currentStatusName,
          number&taskId='.$taskId.'&id='.$id);
-        Log::channel('twin')->info(__FUNCTION__.' get', $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
 
         return $result;
     }

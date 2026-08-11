@@ -2,11 +2,14 @@
 
 namespace App\Services\Telegram;
 
+use App\Traits\GeneratesRid;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TelegramClient
 {
+    use GeneratesRid;
+
     private string $baseUrl;
 
     public function __construct(private array $config)
@@ -16,7 +19,8 @@ class TelegramClient
 
     public function sendMessage(string $chatId, string $text, string $parseMode = 'Markdown'): array
     {
-        Log::channel('app')->info(__FUNCTION__.' send', ['chat_id' => $chatId]);
+        $rid = $this->newRid();
+        Log::channel('app')->info(__FUNCTION__.' send', ['rid' => $rid, 'chat_id' => $chatId]);
 
         $response = Http::post("{$this->baseUrl}/sendMessage", [
             'chat_id' => $chatId,
@@ -26,7 +30,7 @@ class TelegramClient
 
         $data = $response->json() ?? [];
 
-        Log::channel('app')->info(__FUNCTION__.' get', ['data' => $data]);
+        Log::channel('app')->info(__FUNCTION__.' get', ['rid' => $rid, 'data' => $data]);
 
         if (! $response->successful()) {
             throw new \Exception('Telegram API error: '.$response->body());

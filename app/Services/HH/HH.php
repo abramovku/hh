@@ -2,10 +2,13 @@
 
 namespace App\Services\HH;
 
+use App\Traits\GeneratesRid;
 use Illuminate\Support\Facades\Log;
 
 class HH
 {
+    use GeneratesRid;
+
     private $HHClient;
 
     private $config;
@@ -46,46 +49,51 @@ class HH
 
     public function getMe(): array
     {
-        Log::channel('hh')->info(__FUNCTION__.' send');
+        $rid = $this->newRid();
+        Log::channel('hh')->info(__FUNCTION__.' send', ['rid' => $rid]);
         $data = $this->HHClient->get('/me');
-        Log::channel('hh')->info(__FUNCTION__.' get');
+        Log::channel('hh')->info(__FUNCTION__.' get', ['rid' => $rid]);
 
         return $data;
     }
 
     public function getManagers(): array
     {
-        Log::channel('hh')->info(__FUNCTION__.' send');
+        $rid = $this->newRid();
+        Log::channel('hh')->info(__FUNCTION__.' send', ['rid' => $rid]);
         $result = $this->getAllPages('/employers/'.$this->config['employer'].'/managers');
-        Log::channel('hh')->info(__FUNCTION__.' get');
+        Log::channel('hh')->info(__FUNCTION__.' get', ['rid' => $rid]);
 
         return $result;
     }
 
     public function getVacanciesByManager(int $id): array
     {
-        Log::channel('hh')->info(__FUNCTION__.' send', ['id' => $id]);
+        $rid = $this->newRid();
+        Log::channel('hh')->info(__FUNCTION__.' send', ['rid' => $rid, 'id' => $id]);
         $result = $this->getAllPages('/employers/'.$this->config['employer'].'/vacancies/active?manager_id='.$id);
-        Log::channel('hh')->info(__FUNCTION__.' get');
+        Log::channel('hh')->info(__FUNCTION__.' get', ['rid' => $rid, 'id' => $id]);
 
         return $result;
     }
 
     public function getResponcesByVacancy(int $id): array
     {
-        Log::channel('hh')->info(__FUNCTION__.' send', ['id' => $id]);
+        $rid = $this->newRid();
+        Log::channel('hh')->info(__FUNCTION__.' send', ['rid' => $rid, 'id' => $id]);
         $result = $this->getAllPages('/negotiations/response?vacancy_id='.$id);
-        Log::channel('hh')->info(__FUNCTION__.' get');
+        Log::channel('hh')->info(__FUNCTION__.' get', ['rid' => $rid, 'id' => $id]);
 
         return $result;
     }
 
     public function getResume(string $id, int $response_id, int $vacancy_id): array
     {
-        Log::channel('hh')->info(__FUNCTION__.' send', ['id' => $id, 'response_id' => $response_id,
+        $rid = $this->newRid();
+        Log::channel('hh')->info(__FUNCTION__.' send', ['rid' => $rid, 'id' => $id, 'response_id' => $response_id,
             'vacancy_id' => $vacancy_id]);
         $data = $this->HHClient->get('/resumes/'.$id.'?topic_id='.$response_id.'&vacancy_id='.$vacancy_id);
-        Log::channel('hh')->info(__FUNCTION__.' get', ['id' => $id, 'response_id' => $response_id,
+        Log::channel('hh')->info(__FUNCTION__.' get', ['rid' => $rid, 'id' => $id, 'response_id' => $response_id,
             'vacancy_id' => $vacancy_id]);
 
         return $data;
