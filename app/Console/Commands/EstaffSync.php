@@ -53,13 +53,29 @@ class EstaffSync extends Command
                 continue;
             }
             foreach ($responses as $candidate) {
-                $EstaffCadidate = $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
-                $candidate->candidate_estaff = $EstaffCadidate['candidate']['id'];
-                $candidate->vacancy_estaff = $vacancyData['id'];
-                $candidate->setSend();
-                $candidate->save();
+                try {
+                    if (empty($candidate->candidate_estaff)) {
+                        $EstaffCadidate = $EstaffService->addResponse($this->prepareCandidate($candidate, $vacancyData));
+                        $candidate->candidate_estaff = $EstaffCadidate['candidate']['id'];
+                        $candidate->vacancy_estaff = $vacancyData['id'];
+                        $candidate->save();
+                    }
 
-                dispatch(new StartTwinConversation($candidate->id));
+                    $candidate->setSend();
+                    $candidate->save();
+
+                    dispatch(new StartTwinConversation($candidate->id));
+                } catch (\Exception $e) {
+                    Log::channel('estaff')->error('sync candidate failed', [
+                        'response' => $candidate->id,
+                        'response_id' => $candidate->response_id,
+                        'vacancy' => $vacancy,
+                        'candidate_estaff' => $candidate->candidate_estaff,
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                    ]);
+                }
             }
         }
     }
