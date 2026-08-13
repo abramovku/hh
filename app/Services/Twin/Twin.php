@@ -250,13 +250,13 @@ class Twin
         return $result;
     }
 
-    public function getDataCall(string $taskId, string $id)
+    public function getDataCall(string $taskId, string $id, ?string $estaffId = null)
     {
         $rid = $this->newRid();
-        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid, 'taskId' => $taskId, 'id' => $id]);
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid, 'taskId' => $taskId, 'id' => $id, 'estaff_id' => $estaffId]);
         $result = $this->client->get('https://twin24.ai/analyse/api/v1/search/cis/sessions?fields=currentStatusName,
          number&taskId='.$taskId.'&id='.$id);
-        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid, 'estaff_id' => $estaffId] + $result);
 
         return $result;
     }

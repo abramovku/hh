@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Enums\EstaffEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use App\Enums\EstaffEvent;
 
 class OperateTwinVoiceWebhook implements ShouldQueue
 {
@@ -41,7 +41,11 @@ class OperateTwinVoiceWebhook implements ShouldQueue
 
         sleep(30);
 
-        $data = $TwinService->getDataCall($this->data['taskId'], $this->data['lastCallId']);
+        $data = $TwinService->getDataCall(
+            $this->data['taskId'],
+            $this->data['lastCallId'],
+            $this->data['callbackData']['EStaffID'] ?? null
+        );
 
         if (! empty($data['items']) && is_array($data['items'])) {
 
@@ -59,7 +63,7 @@ class OperateTwinVoiceWebhook implements ShouldQueue
 
                 try {
                     $EstaffService->setStateCandidate($params);
-                    Log::channel('twin')->info("voice webhook status changed", ['data' => $this->data]);
+                    Log::channel('twin')->info('voice webhook status changed', ['data' => $this->data]);
                 } catch (\Exception $e) {
                     Log::channel('app')->error(
                         'voice webhook change status error',
