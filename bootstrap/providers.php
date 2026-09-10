@@ -6,4 +6,5 @@ return [
     App\Services\Twin\TwinServiceProvider::class,
     App\Services\Estaff\EstaffServiceProvider::class,
     App\Services\Telegram\TelegramServiceProvider::class,
+    App\Services\Location\LocationServiceProvider::class,
 ];

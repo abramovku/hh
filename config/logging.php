@@ -158,6 +158,14 @@ return [
             'name' => 'AppLog',
             'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
         ],
+
+        'location' => [
+            'driver' => 'custom',
+            'via' => danielme85\LaravelLogToDB\LogToDbHandler::class,
+            'level' => env('APP_LOG_LEVEL', 'debug'),
+            'name' => 'LocationLog',
+            'max_hours' => env('LOG_DB_MAX_HOURS', 'false'),
+        ],
     ],
 
 ];

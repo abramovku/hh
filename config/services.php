@@ -50,6 +50,13 @@ return [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'chat_id' => env('TELEGRAM_CHAT_ID'),
     ],
+    'location' => [
+        'url' => env('LOCATION_API_URL'),
+        'timeout' => (int) env('LOCATION_API_TIMEOUT', 5),
+        'retries' => (int) env('LOCATION_API_RETRIES', 1),
+        // Server cert does not match its IP address; verification off by default like HH/Twin clients.
+        'verify_ssl' => (bool) env('LOCATION_API_VERIFY_SSL', false),
+    ],
     'monitor' => [
         'failed_jobs_limit' => env('FAILED_JOBS_LIMIT', 5),
         'notify_cooldown' => env('FAILED_JOBS_NOTIFY_COOLDOWN', 3600),

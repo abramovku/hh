@@ -8,6 +8,7 @@ Laravel 12 recruitment automation system integrating three external APIs:
 - **HeadHunter (HH)** — job board API for vacancies and candidate responses
 - **Estaff** — internal candidate management system
 - **Twin24** — automated calling and messaging (WhatsApp, SMS, Voice)
+- **Location** — region lookup by phone number (`GET {LOCATION_API_URL}/region?number=7XXXXXXXXXX`), returns Estaff `location_id`
 
 ## Commands
 
@@ -33,7 +34,9 @@ Each integration follows a two-class pattern in `app/Services/*/`:
 1. **Service class** (`HH.php`, `Twin.php`, `Estaff.php`) — business logic
 2. **Client class** (`HHClient.php`, `TwinClient.php`, `EstaffClient.php`) — HTTP communication with OAuth2/token refresh
 
-Services are bound via ServiceProviders and resolved as: `app('hh')`, `app('twin')`, `app('estaff')`.
+Services are bound via ServiceProviders and resolved as: `app('hh')`, `app('twin')`, `app('estaff')`, `app('location')`.
+
+`app('location')` never throws: `locationId($phone)` returns the Estaff `location_id` string or `null` (not matched / API error / not configured), logging failures to the `location` channel. Phone is normalized to 11 digits without `+` before the request.
 
 ### Data Flow
 `Webhook → WebhookController → Job (queued) → Service → External API`
@@ -62,7 +65,7 @@ Log::channel('hh')->info(__FUNCTION__ . ' send', ['id' => $id]);
 $data = $this->HHClient->get('/endpoint');
 Log::channel('hh')->info(__FUNCTION__ . ' get', ['data' => $data]);
 ```
-Channels: `app`, `hh`, `twin`, `estaff` — defined in `config/logging.php`.
+Channels: `app`, `hh`, `twin`, `estaff`, `location` — defined in `config/logging.php`.
 
 ### OAuth Token Management
 HH and Twin clients auto-refresh expired tokens:
@@ -113,7 +116,7 @@ try {
 - **ID namespaces are separate** — never use Estaff IDs with HH API or vice versa; map via `responses` table
 - **WhatsApp vs SMS differ** — `Twin::sendMessage()` uses `chatId`/`botId`; SMS uses a different structure; check both before modifying
 - **Queue driver is `database` with `--tries=1`** — jobs must not rely on Laravel's built-in retry; use delayed self-dispatch instead
-- **SSL verification is disabled** in HH/Twin clients (`CURLOPT_SSL_VERIFYPEER => false`) — required for current environment
+- **SSL verification is disabled** in HH/Twin clients (`CURLOPT_SSL_VERIFYPEER => false`) — required for current environment. Location client too (`LOCATION_API_VERIFY_SSL=false`): the region API cert does not match its IP host, and its `http://` URL 301-redirects to `https://`
 - **Hardcoded values** — some bot IDs, SMS texts, and job types are hardcoded in `Twin.php`; extract to config before changing
 
 ## Code Style
