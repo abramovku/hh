@@ -131,6 +131,102 @@ class Estaff
         return $this->call(__FUNCTION__, 'candidate/add_event', $params);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | New flow (config/flow.php)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Candidates sharing a mobile phone (ТЗ 3.1). Returns the `candidates` list in API order.
+     */
+    public function findCandidatesByPhone(string $phone): array
+    {
+        $data = $this->call(__FUNCTION__, 'candidate/find', [
+            'filter' => ['mobile_phone' => $phone],
+            'field_names' => ['id', 'main_vacancy_id'],
+        ]);
+
+        return is_array($data['candidates'] ?? null) ? $data['candidates'] : [];
+    }
+
+    /**
+     * position_id («Штатная должность») of a vacancy, null when absent.
+     */
+    public function getVacancyPositionId(int $vacancyId): ?string
+    {
+        $data = $this->getVacancy($vacancyId, ['position_id']);
+        $position = $data['vacancy']['position_id'] ?? null;
+
+        return $position === null || $position === '' ? null : (string) $position;
+    }
+
+    /**
+     * Current state of a candidate and the date of that state's event (ТЗ 6.4).
+     * State field is `state_id`. The date comes from the latest `events[]` entry matching the state
+     * (`type_id[:occurrence_id]`, e.g. event_type_49 + scheduled) — for a lead that is the interview date.
+     * Estaff `state_date` is only the transition date, so a dedicated date field is used only when configured.
+     *
+     * @return array{state: string|null, state_date: string|null}
+     */
+    public function getCandidateState(int $id): array
+    {
+        $fields = config('flow.estaff_state_fields', []);
+        $stateField = $fields['state'] ?? 'state_id';
+        $dateField = (string) ($fields['state_date'] ?? '');
+
+        $data = $this->getCandidate($id, array_values(array_unique(array_filter([$stateField, $dateField, 'events']))));
+        $candidate = $data['candidate'] ?? [];
+
+        $state = isset($candidate[$stateField]) && $candidate[$stateField] !== '' ? (string) $candidate[$stateField] : null;
+        $stateDate = null;
+
+        if ($state !== null && is_array($candidate['events'] ?? null)) {
+            $stateDate = $this->latestEventDate($candidate['events'], $state);
+        }
+
+        if ($stateDate === null && $dateField !== '' && isset($candidate[$dateField]) && $candidate[$dateField] !== '') {
+            $stateDate = (string) $candidate[$dateField];
+        }
+
+        return ['state' => $state, 'state_date' => $stateDate];
+    }
+
+    /**
+     * Date of the most recent event whose type (and occurrence, when the state has a ":suffix") matches the state.
+     */
+    private function latestEventDate(array $events, string $state): ?string
+    {
+        [$typeId, $occurrence] = array_pad(explode(':', $state, 2), 2, null);
+        $latest = null;
+
+        foreach ($events as $event) {
+            if (! is_array($event) || ($event['type_id'] ?? null) !== $typeId || empty($event['date'])) {
+                continue;
+            }
+            if ($occurrence !== null && isset($event['occurrence_id']) && (string) $event['occurrence_id'] !== $occurrence) {
+                continue;
+            }
+            if ($latest === null || strcmp((string) $event['date'], $latest) > 0) {
+                $latest = (string) $event['date'];
+            }
+        }
+
+        return $latest;
+    }
+
+    /**
+     * Fill location_id on a candidate card (ТЗ 1). `changed_data.location_id` is accepted by Estaff
+     * although the public docs list only user_login / vacancy_id / drop_other_vacancies for candidate/change.
+     */
+    public function updateCandidateLocation(int $id, string $locationId): array
+    {
+        return $this->changeCandidate([
+            'candidate' => ['id' => $id],
+            'changed_data' => ['location_id' => $locationId],
+        ]);
+    }
+
     public function setWebhook(array $params): array
     {
         return $this->call(__FUNCTION__, 'webhook/set', $params);

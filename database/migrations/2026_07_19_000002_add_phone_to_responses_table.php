@@ -5,13 +5,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+return new class() extends Migration
 {
     public function up(): void
     {
         Schema::table('responses', function (Blueprint $table) {
             $table->string('phone', 20)->nullable()->index()->after('candidate_estaff');
         });
+
+        if (DB::getDriverName() !== 'mysql') {
+            return; // Backfill below uses MySQL syntax; the SQLite test database starts empty anyway.
+        }
 
         DB::statement("
             UPDATE responses r

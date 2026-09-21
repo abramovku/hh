@@ -1,15 +1,17 @@
 <?php
 
 use App\Http\Controllers\EndpointController;
+use App\Http\Controllers\FlowSwitchController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('health/estaff', [HealthController::class, 'estaff'])->name('health.estaff');
 
-Route::post('estaff-webhooks', [WebhookController::class, 'estaffWebhooks'])->name('estaff.webhook');
+// FlowSwitchController forwards to WebhookController (legacy) or FlowWebhookController (FLOW_MODE=new).
+Route::post('estaff-webhooks', [FlowSwitchController::class, 'estaffWebhooks'])->name('estaff.webhook');
 Route::post('twin-webhooks', [WebhookController::class, 'twinWebhooks'])->name('twin.webhook');
-Route::post('twin-webhooks-voice', [WebhookController::class, 'twinVoiceWebhooks'])->name('twin.webhook.voice');
+Route::post('twin-webhooks-voice', [FlowSwitchController::class, 'twinVoiceWebhooks'])->name('twin.webhook.voice');
 Route::group(['as' => 'twin.', 'prefix' => 'twin'], function () {
     Route::post('createCandidate', [EndpointController::class, 'create'])->name('twin.create');
     Route::post('updateCandidate', [EndpointController::class, 'update'])->name('twin.update');

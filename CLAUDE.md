@@ -49,11 +49,36 @@ Estaff webhooks carry candidate state changes (`event_type_*`). `WebhookControll
 
 Twin webhooks (`OperateTwinWebhook`, `OperateTwinVoiceWebhook`) poll status and self-delete from the queue on final status.
 
+### Flow switch (`FLOW_MODE=legacy|new`, `config/flow.php`)
+The routes `estaff-webhooks` and `twin-webhooks-voice` point to `FlowSwitchController`, which forwards to
+`WebhookController` (legacy, described above) or `FlowWebhookController` (new flow per ТЗ «ПК — обзвон»).
+Legacy code is untouched; do not add new-flow logic to it. Switching the mode needs `config:clear` + `queue:restart`.
+
+New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
+- Only Estaff states `new` / `event_type_47` / `event_type_48` are processed. `CandidateGuard` (ТЗ 3.1) finds candidates by phone,
+  resolves vacancy `position_id`, allows only `ESTAFF_ALLOWED_POSITION_IDS`, selects index 0, logs duplicates.
+- `StartFlowCall` → `Twin::getAutoCall($taskKey)` (one autoCall per business-day per key: `warm|cold|old_script|reminder|feedback`,
+  stored in `call_tasks`, guarded by `Cache::lock` + unique `(date,type)`) → `addCandidateToAutoCall()` (with `clientExternalId`) → `event_type_88`.
+  Cold calls also fill `location_id` via `CandidateLocationEnricher`; `EndpointController::create/update` do the same when the flag is on.
+- `ProcessCallEnded` / `CallResultProcessor` (ТЗ 5): task type by `botId`; not `ANSWERED` or old-script bot → `event_type_35`;
+  otherwise `Twin::findSessions()` → `results.confirmation` → `config('flow.confirmation_states')` (user-maintained table) or `LeadHandler`
+  (`ПК_Лид` → `add_event` with `user_login`, retried without it). No session yet → delayed self-dispatch, not `release()`.
+- Leads are stored in `interview_schedules`; `app:flow-reminders` (every 15 min, 09:30–17:00 business tz) and `app:flow-feedback`
+  add them to the `ПК_Напоминание {date}` / `ПК_ОС {date}` autoCalls. Any Estaff state other than `event_type_49*` cancels active rows.
+- All "today"/window logic uses `Flow::timezone()` (`FLOW_TIMEZONE`, default Europe/Moscow); app timezone is UTC.
+- Estaff API confirmed (Websoft docs + DB dictionary https://office.datex.ru/download/5.1/EStaff_DB_51.htm): `candidate/find` → `candidates`,
+  candidate `state_id` / `main_vacancy_id` / `location_id` (also accepted in `candidate/change` `changed_data`), vacancy `position_id`,
+  `set_state` accepts `event.comment`, `add_event` takes `candidate{id,state_id}`, required `vacancy{id}`, `event{date,comment,user_login}`.
+  Estaff `state_date` is the *transition* date, so the interview date for ТЗ 6.4 is read from candidate `events[]`
+  (`type_id` + `occurrence_id` of the lead state). Still to verify on the stand: the Twin autoCallCandidate URL
+  (`TWIN_AUTOCALL_CANDIDATE_URL`, with or without `/batch`).
+
 ### Console Commands (`app/Console/Commands/`)
 - `HHAuth` / `HHMe` — OAuth flow and user info
-- `HHSync` — fetch new HH responses and sync to Estaff
-- `EstaffSync` — sync data from Estaff
+- `HHSync` — fetch new HH responses and sync to Estaff (scheduled only in legacy mode)
+- `EstaffSync` — sync data from Estaff (scheduled only in legacy mode)
 - `EstaffSetupWebhook` / `EstaffAutoWebhook` — manage Estaff webhook registration
+- `Flow/SendInterviewReminders` (`app:flow-reminders {--date=}`) / `Flow/SendFeedbackCalls` (`app:flow-feedback {--date=}`) — new flow, scheduled only in new mode
 - `LogRotate` — rotate log files
 
 ## Key Conventions
@@ -109,7 +134,10 @@ try {
 - `settings` — generic key-value store (critical key: `hh_credentials`)
 - `jobs` — Laravel queue table
 - `twin_tasks` — tracks active Twin jobs for status polling
-- `call_tasks` — deduplicates Twin call task creation
+- `call_tasks` — deduplicates Twin call task creation; unique `(date, type)`. Legacy `type` = `TWIN_CALL_TYPE`, new flow `type` = task key
+- `interview_schedules` — new flow leads (`ПК_Лид`): interview date, stage (`scheduled → reminder_sent → feedback_pending → feedback_sent`, or `reminder_skipped|cancelled|superseded`), autoCall ids
+
+Tests run on in-memory SQLite: MySQL-only statements in migrations (`FULLTEXT`, `UPDATE ... JOIN`) are guarded by driver checks.
 
 ## Common Pitfalls
 

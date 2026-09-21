@@ -11,4 +11,7 @@ enum EstaffEvent: string
     case SmsSent = 'event_type_51';
     case VoiceWebhook = 'event_type_35';
     case BeforeCall = 'event_type_88';
+    case New = 'new';
+    case NotRelevant = 'event_type_46';
+    case InterviewScheduled = 'event_type_49:scheduled';
 }

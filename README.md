@@ -217,6 +217,37 @@ app/
 5. `TwinTask` создается для отслеживания статуса
 6. При финальном статусе задача удаляется из очереди
 
+## Новый флоу обзвона (`FLOW_MODE=new`)
+
+Реализация ТЗ «ПК — обзвон». Включается переменной `FLOW_MODE=new` (по умолчанию `legacy` — поведение выше без изменений).
+После смены режима: `php artisan config:clear && php artisan queue:restart`. Настройки — `config/flow.php`.
+
+Переменные окружения:
+```env
+FLOW_MODE=new
+FLOW_TIMEZONE=Europe/Moscow            # бизнес-таймзона для «сегодня» и окон обзвона
+ESTAFF_ALLOWED_POSITION_IDS=id1,id2    # разрешённые position_id вакансий (п. 3.1), обязательно
+FLOW_OLD_SCRIPT_VACANCY_IDS=7541291626956944847
+TWIN_BOT_WARM= / TWIN_BOT_COLD= / TWIN_BOT_OLD= / TWIN_BOT_REMINDER= / TWIN_BOT_FEEDBACK=
+```
+Таблица «СТАТУСЫ БОТА» (`results.confirmation → event_type_*`) лежит в `config/flow.php` → `confirmation_states`
+(источник: https://docs.google.com/spreadsheets/d/1iONRhEtbEhcuvyztLoY8AHxgZO68kxRWjQJWIt6Z1Io). Столбец «Ничего не делать» → `ignored_confirmations`.
+При изменении таблицы правится только конфиг.
+
+Сценарий:
+1. Estaff webhook `new` / `event_type_47` / `event_type_48` → проверка дублей по телефону и `position_id` (`CandidateGuard`).
+   `new` — только журналирование дублей; `48` — дополнительно `location_id` из региона по телефону.
+2. Кандидат добавляется в задание TWIN текущего дня нужного типа (тёплый / холодный / старый скрипт для вакансии из `FLOW_OLD_SCRIPT_VACANCY_IDS`),
+   одно задание на тип в сутки (`call_tasks`), затем статус `event_type_88`.
+3. TWIN webhook `CALL_ENDED` (`/api/twin-webhooks-voice`): не `ANSWERED` или бот старого скрипта → `event_type_35`;
+   иначе результат диалога из analyse → `stateCandidate` по таблице статусов, либо для `ПК_Лид` → `eventCandidate` `event_type_49:scheduled`
+   (с `user_login`, при ошибке повтор без него) и запись в `interview_schedules`.
+4. `app:flow-reminders` (каждые 15 минут, 09:30–17:00) в день собеседования добавляет лидов в задание `ПК_Напоминание DD.MM`,
+   если кандидат всё ещё в `event_type_49:scheduled` на эту дату. Ответ `ПК_Напоминание-Время` → `app:flow-feedback` на следующий день
+   добавляет кандидата в `ПК_ОС DD.MM`. Результаты `ПК_ОС` не обрабатываются.
+
+Ручной запуск: `php artisan app:flow-reminders --date=2026-07-17`, `php artisan app:flow-feedback --date=2026-07-18`.
+
 ## Логирование
 
 Система использует отдельные каналы логирования:

@@ -10,17 +10,21 @@ use App\Http\Requests\GetCandidate;
 use App\Http\Requests\GetVacancy;
 use App\Http\Requests\SetStateCandidate;
 use App\Http\Requests\UpdateCandidate;
+use App\Services\Flow\CandidateLocationEnricher;
+use App\Support\Flow;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class EndpointController extends Controller
 {
-    private function callEstaff(string $action, string $method, FormRequest $request): JsonResponse
+    private function callEstaff(string $action, string $method, FormRequest|array $request): JsonResponse
     {
-        Log::channel('app')->info('twin '.$action, [$request->all()]);
+        $params = $request instanceof FormRequest ? $request->all() : $request;
+
+        Log::channel('app')->info('twin '.$action, [$params]);
         try {
-            $response = app('estaff')->{$method}($request->all());
+            $response = app('estaff')->{$method}($params);
         } catch (\Exception $e) {
             Log::channel('app')->error('Estaff service error', [
                 'message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine(),
@@ -35,7 +39,12 @@ class EndpointController extends Controller
 
     public function create(AddCandidate $request): JsonResponse
     {
-        return $this->callEstaff('create candidate', 'addResponse', $request);
+        $params = $request->all();
+        if (Flow::isNew()) {
+            $params = app(CandidateLocationEnricher::class)->enrichCreatePayload($params); // ТЗ 1
+        }
+
+        return $this->callEstaff('create candidate', 'addResponse', $params);
     }
 
     public function get(GetCandidate $request): JsonResponse
@@ -50,7 +59,12 @@ class EndpointController extends Controller
 
     public function update(UpdateCandidate $request): JsonResponse
     {
-        return $this->callEstaff('change candidate', 'changeCandidate', $request);
+        $params = $request->all();
+        if (Flow::isNew()) {
+            $params = app(CandidateLocationEnricher::class)->enrichUpdatePayload($params); // ТЗ 1
+        }
+
+        return $this->callEstaff('change candidate', 'changeCandidate', $params);
     }
 
     public function event(EventCandidate $request): JsonResponse

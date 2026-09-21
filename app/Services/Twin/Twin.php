@@ -3,8 +3,12 @@
 namespace App\Services\Twin;
 
 use App\Models\CallTask;
+use App\Support\Flow;
 use App\Traits\GeneratesRid;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class Twin
@@ -161,40 +165,7 @@ class Twin
                 'detectRobot' => false,
                 'providerId' => $this->config['provider_id'],
             ],
-            'redialStrategyOptions' => [
-                'redialStrategyEn' => true,
-                'busy' => [
-                    'redial' => true,
-                    'time' => 1800,
-                    'count' => 3,
-                ],
-                'noAnswer' => [
-                    'redial' => true,
-                    'time' => 7200,
-                    'count' => 5,
-                ],
-                'answerMash' => [
-                    'redial' => false,
-                ],
-                'congestion' => [
-                    'redial' => true,
-                    'time' => 900,
-                    'count' => 5,
-                ],
-                'answerNoList' => [
-                    'redial' => true,
-                    'time' => 3600,
-                    'count' => 2,
-                ],
-                'candidateLimit' => [
-                    'redial' => true,
-                    'count' => 6,
-                ],
-                'numberLimit' => [
-                    'redial' => true,
-                    'count' => 6,
-                ],
-            ],
+            'redialStrategyOptions' => $this->redialStrategy(),
             'name' => 'CALL'.$today.'*'.$type,
             'defaultExec' => 'robot',
             'defaultExecData' => $this->config['default_exec'],
@@ -259,5 +230,184 @@ class Twin
         Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid, 'estaff_id' => $estaffId] + $result);
 
         return $result;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | New flow (config/flow.php)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Twin autoCall id for a task type and calendar date (business timezone), created on first use.
+     * One autoCall per (date, type): guarded by a cache lock and the unique index on call_tasks.
+     *
+     * @param  bool|null  $created  Set to true when the autoCall was created by this call.
+     */
+    public function getAutoCall(string $taskKey, ?CarbonInterface $date = null, ?bool &$created = null): string
+    {
+        $date = $date ? $date->copy()->setTimezone(Flow::timezone()) : Flow::now();
+        $day = $date->toDateString();
+        $created = false;
+
+        $lock = Cache::lock("flow:autocall:$taskKey:$day", 30);
+
+        return $lock->block(25, function () use ($taskKey, $date, $day, &$created) {
+            $existing = CallTask::where('date', $day)->where('type', $taskKey)->value('twin_id');
+            if (! empty($existing)) {
+                return $existing;
+            }
+
+            Log::channel('twin')->info('autoCall not found in DB - creating it', ['date' => $day, 'type' => $taskKey]);
+            $twinId = $this->makeAutoCall($taskKey, $date);
+
+            try {
+                CallTask::create(['date' => $day, 'type' => $taskKey, 'twin_id' => $twinId]);
+                $created = true;
+            } catch (QueryException $e) {
+                // Unique (date, type) hit: another worker created it between our read and write.
+                $existing = CallTask::where('date', $day)->where('type', $taskKey)->value('twin_id');
+                Log::channel('twin')->warning('autoCall created concurrently, reusing stored id', [
+                    'date' => $day, 'type' => $taskKey, 'created' => $twinId, 'stored' => $existing,
+                ]);
+                if (! empty($existing)) {
+                    return $existing;
+                }
+                throw $e;
+            }
+
+            return $twinId;
+        });
+    }
+
+    /**
+     * POST telephony/autoCall with the payload from ТЗ (4.3–4.5, 6.2, 6.6).
+     */
+    private function makeAutoCall(string $taskKey, CarbonInterface $date): string
+    {
+        $task = Flow::task($taskKey);
+
+        $data = [
+            'additionalOptions' => [
+                'recordCall' => true,
+                'recTrimLeft' => true,
+                'fullListMethod' => 'reject',
+                'fullListTime' => 13,
+                'detectRobot' => false,
+                'providerId' => $this->config['provider_id'],
+                'allowCallTimeFrom' => (int) $task['from'],
+                'allowCallTimeTo' => (int) $task['to'],
+            ],
+            'redialStrategyOptions' => $this->redialStrategy(),
+            'name' => Flow::taskName($taskKey, $date),
+            'defaultExec' => 'robot',
+            'secondExec' => 'ignore',
+            'defaultExecData' => $task['bot'],
+            'cidType' => 'gornum',
+            'cidData' => $this->config['cid'],
+            'startType' => 'manual',
+            'cps' => '0.97',
+        ];
+
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid, 'task' => $taskKey] + $data);
+        $result = $this->client->post(config('flow.urls.autocall'), $data);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid, 'task' => $taskKey] + $result);
+
+        if (empty($result['id']['identity'])) {
+            throw new \Exception("autoCall [$taskKey] was not created: no id in Twin response");
+        }
+
+        return $result['id']['identity'];
+    }
+
+    /**
+     * POST telephony/autoCallCandidate (ТЗ 4.6). clientExternalId protects the task from duplicates:
+     * Twin answers 200 for a repeated phone and adds the candidate only once.
+     */
+    public function addCandidateToAutoCall(
+        string $autoCallId,
+        string $phone,
+        string $estaffId,
+        ?string $clientExternalId = null,
+        array $vars = []
+    ): array {
+        $data = [
+            'batch' => [
+                [
+                    'variables' => ['EStaffID' => $estaffId] + $vars,
+                    'callbackData' => ['EStaffID' => $estaffId],
+                    'autoCallId' => $autoCallId,
+                    'phone' => [$phone],
+                    'clientExternalId' => $clientExternalId ?? $phone,
+                    'forceStart' => true,
+                ],
+            ],
+        ];
+
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid] + $data);
+        $result = $this->client->post(config('flow.urls.autocall_candidate'), $data);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid] + $result);
+
+        return $result;
+    }
+
+    /**
+     * GET analyse sessions by phone and call start (ТЗ 5.3). Returns the decoded body (`count`, `items`).
+     */
+    public function findSessions(string $phone, string $from, int $limit = 1): array
+    {
+        $query = http_build_query([
+            'fields' => config('flow.analyse.fields'),
+            'limit' => $limit,
+            'from' => $from,
+            'phone' => $phone,
+        ]);
+
+        $rid = $this->newRid();
+        Log::channel('twin')->info(__FUNCTION__.' send', ['rid' => $rid, 'phone' => $phone, 'from' => $from]);
+        $result = $this->client->get(config('flow.urls.analyse_sessions').'?'.$query);
+        Log::channel('twin')->info(__FUNCTION__.' get', ['rid' => $rid, 'phone' => $phone] + $result);
+
+        return $result;
+    }
+
+    private function redialStrategy(): array
+    {
+        return [
+            'redialStrategyEn' => true,
+            'busy' => [
+                'redial' => true,
+                'time' => 1800,
+                'count' => 3,
+            ],
+            'noAnswer' => [
+                'redial' => true,
+                'time' => 7200,
+                'count' => 5,
+            ],
+            'answerMash' => [
+                'redial' => false,
+            ],
+            'congestion' => [
+                'redial' => true,
+                'time' => 900,
+                'count' => 5,
+            ],
+            'answerNoList' => [
+                'redial' => true,
+                'time' => 3600,
+                'count' => 2,
+            ],
+            'candidateLimit' => [
+                'redial' => true,
+                'count' => 6,
+            ],
+            'numberLimit' => [
+                'redial' => true,
+                'count' => 6,
+            ],
+        ];
     }
 }
