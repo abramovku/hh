@@ -5,32 +5,38 @@ namespace App\Http\Controllers;
 use App\Enums\EstaffEvent;
 use App\Http\Requests\EstaffWebhook;
 use App\Http\Requests\Flow\CallEndedWebhook;
-use App\Jobs\Flow\ProcessCallEnded;
 use App\Jobs\Flow\ProcessNewCandidate;
 use App\Jobs\Flow\StartFlowCall;
 use App\Models\InterviewSchedule;
+use App\Services\Flow\FlowRouter;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Webhook entry points of the new flow (config('flow.mode') === 'new').
- * Reached through FlowSwitchController.
+ * New-flow handlers for Estaff / Twin voice webhooks. Reached through FlowSwitchController → FlowRouter.
  */
 class FlowWebhookController extends Controller
 {
-    /**
-     * ТЗ 3: only `new`, event_type_47 and event_type_48 are processed.
-     */
     public function estaffWebhooks(EstaffWebhook $request)
     {
         $data = $request->all();
         Log::channel('estaff')->info('Webhook received (flow)', $data);
 
+        $this->handleState($data);
+
+        return response()->json('ok', 200);
+    }
+
+    /**
+     * ТЗ 3: only `new`, event_type_47 and event_type_48 are processed.
+     */
+    public function handleState(array $data): void
+    {
         $stateId = $data['data']['state_id'] ?? null;
         $candidateId = (int) ($data['data']['candidate_id'] ?? 0);
         $vacancyId = ! empty($data['data']['vacancy_id']) ? (int) $data['data']['vacancy_id'] : null;
 
         if (($data['event_type'] ?? null) !== 'candidate_state' || empty($stateId) || $candidateId <= 0) {
-            return response()->json('ok', 200);
+            return;
         }
 
         switch ($stateId) {
@@ -48,33 +54,26 @@ class FlowWebhookController extends Controller
         }
 
         $this->cancelSchedulesOnStateChange($candidateId, (string) $stateId);
-
-        return response()->json('ok', 200);
     }
 
     /**
      * ТЗ 5.1: only CALL_ENDED is processed; other events are acknowledged and ignored.
      */
-    public function twinVoiceWebhooks(CallEndedWebhook $request)
+    public function twinVoiceWebhooks(CallEndedWebhook $request, FlowRouter $router)
     {
         $data = $request->all();
         Log::channel('twin')->info('Webhook voice received (flow)', $data);
 
-        if (($data['event'] ?? null) !== 'CALL_ENDED') {
-            Log::channel('twin')->info('Webhook voice event ignored (flow)', ['event' => $data['event'] ?? null]);
-
-            return response()->json('ok', 200);
-        }
-
-        dispatch(new ProcessCallEnded($data));
+        $router->routeVoice($data);
 
         return response()->json('ok', 200);
     }
 
     /**
      * ТЗ 6.4: a candidate whose state left event_type_49:scheduled must not get reminder / feedback calls.
+     * Interview schedules exist only for new-flow candidates, so this is safe to call in hybrid mode too.
      */
-    private function cancelSchedulesOnStateChange(int $candidateId, string $stateId): void
+    public function cancelSchedulesOnStateChange(int $candidateId, string $stateId): void
     {
         $leadState = (string) config('flow.lead_state');
         // Estaff may report the state with or without the ":scheduled" suffix.

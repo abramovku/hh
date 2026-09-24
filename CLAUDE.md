@@ -49,10 +49,15 @@ Estaff webhooks carry candidate state changes (`event_type_*`). `WebhookControll
 
 Twin webhooks (`OperateTwinWebhook`, `OperateTwinVoiceWebhook`) poll status and self-delete from the queue on final status.
 
-### Flow switch (`FLOW_MODE=legacy|new`, `config/flow.php`)
-The routes `estaff-webhooks` and `twin-webhooks-voice` point to `FlowSwitchController`, which forwards to
-`WebhookController` (legacy, described above) or `FlowWebhookController` (new flow per ТЗ «ПК — обзвон»).
-Legacy code is untouched; do not add new-flow logic to it. Switching the mode needs `config:clear` + `queue:restart`.
+### Flow switch (`FLOW_MODE=legacy|new|hybrid`, `config/flow.php`)
+The routes `estaff-webhooks` and `twin-webhooks-voice` point to `FlowSwitchController` (validation) → `App\Services\Flow\FlowRouter`
+(the only place deciding legacy vs new) → `WebhookController::handleState()` (legacy, described above) or `FlowWebhookController::handleState()`.
+- `hybrid`: new flow only for candidates whose Estaff vacancy id is in `FLOW_NEW_VACANCY_IDS`. States `new`/`47`/`48` are routed by
+  `data.vacancy_id`; without it `ResolveVacancyAndRoute` reads `main_vacancy_id` from Estaff. Other states go to legacy (plus cancelling
+  `interview_schedules`). Twin voice webhooks are routed by `botId` (new-flow bots) or `taskId`/`autoCallId` → `call_tasks.type`;
+  `CANDIDATE_CHANGED` for new-flow calls and `CALL_ENDED` for legacy calls are ignored. `EstaffSync` skips new-flow vacancies (`error = 'new flow vacancy'`).
+Legacy code stays behaviourally untouched (only `handleState()` extraction and the EstaffSync skip); do not add new-flow logic to it.
+Switching the mode needs `config:clear` + `queue:restart`.
 
 New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
 - Only Estaff states `new` / `event_type_47` / `event_type_48` are processed. `CandidateGuard` (ТЗ 3.1) finds candidates by phone,

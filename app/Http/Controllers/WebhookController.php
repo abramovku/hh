@@ -23,6 +23,16 @@ class WebhookController extends Controller
         $data = $request->all();
         Log::channel('estaff')->info('Webhook received', $data);
 
+        $this->handleState($data);
+
+        return response()->json('ok', 200);
+    }
+
+    /**
+     * Legacy dispatch by Estaff candidate state. Also called by FlowRouter (FLOW_MODE=hybrid).
+     */
+    public function handleState(array $data): void
+    {
         if ($data['event_type'] === 'candidate_state' && ! empty($data['data']['state_id'])) {
             switch ($data['data']['state_id']) {
                 case EstaffEvent::ManualConversation->value:
@@ -42,7 +52,7 @@ class WebhookController extends Controller
                     dispatch(new StartTwinCall($data['data']['candidate_id']));
                     break;
                 case EstaffEvent::Sms->value:
-                    //dispatch(new StartTwinSms($data['data']['candidate_id']));
+                    // dispatch(new StartTwinSms($data['data']['candidate_id']));
                     break;
                 case EstaffEvent::ColdConversation->value:
                     if (! empty($data['data']['candidate_id'])) {
@@ -54,8 +64,6 @@ class WebhookController extends Controller
                     break;
             }
         }
-
-        return response()->json('ok', 200);
     }
 
     public function twinWebhooks(TwinTextWebhook $request)

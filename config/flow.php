@@ -6,8 +6,10 @@
 |--------------------------------------------------------------------------
 |
 | FLOW_MODE=legacy keeps the current behaviour untouched.
-| FLOW_MODE=new   routes Estaff / Twin voice webhooks and the scheduler to
-|                 the new flow (app/Services/Flow, app/Jobs/Flow).
+| FLOW_MODE=new    routes Estaff / Twin voice webhooks and the scheduler to
+|                  the new flow (app/Services/Flow, app/Jobs/Flow).
+| FLOW_MODE=hybrid legacy for everyone except candidates whose Estaff vacancy id is in
+|                  FLOW_NEW_VACANCY_IDS — those go through the new flow (App\Services\Flow\FlowRouter).
 |
 | Changing the mode requires `php artisan config:clear` and `queue:restart`.
 */
@@ -18,6 +20,9 @@ $csv = static function (string $key, string $default = ''): array {
 
 return [
     'mode' => env('FLOW_MODE', 'legacy'),
+
+    // hybrid mode: Estaff vacancy ids handled by the new flow (everything else stays legacy).
+    'new_vacancy_ids' => $csv('FLOW_NEW_VACANCY_IDS'),
 
     // Business timezone for "today", call windows and "next day". App timezone is UTC.
     'timezone' => env('FLOW_TIMEZONE', 'Europe/Moscow'),

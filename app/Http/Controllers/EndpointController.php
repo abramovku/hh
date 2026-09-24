@@ -40,7 +40,7 @@ class EndpointController extends Controller
     public function create(AddCandidate $request): JsonResponse
     {
         $params = $request->all();
-        if (Flow::isNew()) {
+        if (Flow::newFlowEnabled()) {
             $params = app(CandidateLocationEnricher::class)->enrichCreatePayload($params); // ТЗ 1
         }
 
@@ -60,7 +60,7 @@ class EndpointController extends Controller
     public function update(UpdateCandidate $request): JsonResponse
     {
         $params = $request->all();
-        if (Flow::isNew()) {
+        if (Flow::newFlowEnabled()) {
             $params = app(CandidateLocationEnricher::class)->enrichUpdatePayload($params); // ТЗ 1
         }
 

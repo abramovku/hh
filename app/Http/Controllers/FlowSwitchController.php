@@ -2,29 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EstaffWebhook;
+use App\Http\Requests\Flow\CallEndedWebhook;
+use App\Services\Flow\FlowRouter;
 use App\Support\Flow;
+use Illuminate\Support\Facades\Log;
 
 /**
- * Routes Estaff / Twin voice webhooks to the legacy or the new flow controller
- * depending on config('flow.mode'). The target FormRequest is resolved from the
- * container, so each controller keeps its own validation.
+ * Entry point for Estaff / Twin voice webhooks in every flow mode (config('flow.mode')).
+ * Validation happens here, the legacy/new decision is made by FlowRouter.
  */
 class FlowSwitchController extends Controller
 {
-    public function estaffWebhooks()
+    public function estaffWebhooks(EstaffWebhook $request, FlowRouter $router)
     {
-        return $this->forward(__FUNCTION__);
+        $data = $request->all();
+        Log::channel('estaff')->info('Webhook received', ['mode' => Flow::mode()] + $data);
+
+        $router->routeEstaffState($data);
+
+        return response()->json('ok', 200);
     }
 
-    public function twinVoiceWebhooks()
+    public function twinVoiceWebhooks(FlowRouter $router)
     {
-        return $this->forward(__FUNCTION__);
-    }
+        if (Flow::isLegacy()) {
+            // Keep the strict legacy validation (event must be CANDIDATE_CHANGED).
+            return app()->call([app(WebhookController::class), 'twinVoiceWebhooks']);
+        }
 
-    private function forward(string $method)
-    {
-        $controller = Flow::isNew() ? FlowWebhookController::class : WebhookController::class;
+        $data = app(CallEndedWebhook::class)->all();
+        Log::channel('twin')->info('Webhook voice received', ['mode' => Flow::mode()] + $data);
 
-        return app()->call([app($controller), $method]);
+        $router->routeVoice($data);
+
+        return response()->json('ok', 200);
     }
 }

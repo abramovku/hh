@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\StartTwinConversation;
 use App\Models\Response;
+use App\Support\Flow;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -48,6 +49,18 @@ class EstaffSync extends Command
                 ]);
                 foreach ($responses as $candidate) {
                     $candidate->setSend();
+                    $candidate->save();
+                }
+                continue;
+            }
+            if (Flow::isHybrid() && Flow::usesNewFlow($vacancyData['id'] ?? null)) {
+                // FLOW_MODE=hybrid: candidates for new-flow vacancies are created by TWIN (ТЗ 2), not from HH responses.
+                $this->info("vacancy {$vacancy} belongs to the new flow, responses skipped");
+                Log::channel('estaff')->info('sync skipped: new flow vacancy', [
+                    'vacancy' => $vacancy, 'vacancy_estaff' => $vacancyData['id'] ?? null, 'responses' => $responses->count(),
+                ]);
+                foreach ($responses as $candidate) {
+                    $candidate->error = 'new flow vacancy';
                     $candidate->save();
                 }
                 continue;

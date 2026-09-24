@@ -5,8 +5,9 @@ namespace App\Http\Requests\Flow;
 use App\Http\Requests\BaseRequest;
 
 /**
- * Twin voice webhook for the new flow (ТЗ 5.1). Any `event` is accepted with 200;
- * only CALL_ENDED is processed, so its fields are required conditionally.
+ * Twin voice webhook for the new and hybrid modes (ТЗ 5.1). Any `event` is accepted with 200;
+ * CALL_ENDED fields are required conditionally. In hybrid mode CANDIDATE_CHANGED may still be
+ * forwarded to the legacy job, which needs taskId (same rule as the legacy request).
  */
 class CallEndedWebhook extends BaseRequest
 {
@@ -20,7 +21,7 @@ class CallEndedWebhook extends BaseRequest
             'startedAt' => 'nullable|string',
             'callbackData' => 'nullable',
             'result' => 'nullable|array',
-            'taskId' => 'nullable|string',
+            'taskId' => 'required_if:event,CANDIDATE_CHANGED|nullable|string',
             'autoCallId' => 'nullable|string',
         ];
     }

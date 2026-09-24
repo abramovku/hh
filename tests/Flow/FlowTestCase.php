@@ -20,6 +20,12 @@ abstract class FlowTestCase extends TestCase
 
     protected const ALLOWED_POSITION = 'pos-seller';
 
+    /** Estaff vacancy id routed to the new flow in hybrid mode. */
+    protected const NEW_VACANCY = 100;
+
+    /** Estaff vacancy id that stays on the legacy flow in hybrid mode. */
+    protected const LEGACY_VACANCY = 200;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -32,6 +38,7 @@ abstract class FlowTestCase extends TestCase
             'flow.mode' => 'new',
             'flow.timezone' => 'Europe/Moscow',
             'flow.allowed_position_ids' => [self::ALLOWED_POSITION],
+            'flow.new_vacancy_ids' => [(string) self::NEW_VACANCY],
             'flow.old_script_vacancy_ids' => ['7541291626956944847'],
             'flow.sleep_after_create' => 0,
             'services.twin.provider_id' => 'provider-1',

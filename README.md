@@ -217,14 +217,20 @@ app/
 5. `TwinTask` создается для отслеживания статуса
 6. При финальном статусе задача удаляется из очереди
 
-## Новый флоу обзвона (`FLOW_MODE=new`)
+## Новый флоу обзвона (`FLOW_MODE=new|hybrid`)
 
-Реализация ТЗ «ПК — обзвон». Включается переменной `FLOW_MODE=new` (по умолчанию `legacy` — поведение выше без изменений).
-После смены режима: `php artisan config:clear && php artisan queue:restart`. Настройки — `config/flow.php`.
+Реализация ТЗ «ПК — обзвон». Режимы (`FLOW_MODE`, по умолчанию `legacy` — поведение выше без изменений):
+- `new` — все вебхуки Estaff и TWIN идут через новый флоу, HH-синк выключен.
+- `hybrid` — основной поток работает по-старому; новый флоу только для кандидатов, чья вакансия Estaff указана в `FLOW_NEW_VACANCY_IDS`.
+  Статусы `new`/`47`/`48` разводятся по `vacancy_id` из вебхука, при его отсутствии `main_vacancy_id` читается из Estaff (джоба `ResolveVacancyAndRoute`).
+  Вебхуки TWIN по звонкам разводятся по боту задания. HH-синк работает, но пропускает вакансии нового флоу.
+
+После смены режима: `php artisan config:clear && php artisan queue:restart`. Настройки — `config/flow.php`, решение legacy/new — `App\Services\Flow\FlowRouter`.
 
 Переменные окружения:
 ```env
-FLOW_MODE=new
+FLOW_MODE=hybrid
+FLOW_NEW_VACANCY_IDS=7541291626956944847,7509471325786749795   # Estaff-id вакансий нового флоу (для hybrid)
 FLOW_TIMEZONE=Europe/Moscow            # бизнес-таймзона для «сегодня» и окон обзвона
 ESTAFF_ALLOWED_POSITION_IDS=id1,id2    # разрешённые position_id вакансий (п. 3.1), обязательно
 FLOW_OLD_SCRIPT_VACANCY_IDS=7541291626956944847
