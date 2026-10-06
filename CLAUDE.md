@@ -75,8 +75,9 @@ New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
   candidate `state_id` / `main_vacancy_id` / `location_id` (also accepted in `candidate/change` `changed_data`), vacancy `position_id`,
   `set_state` accepts `event.comment`, `add_event` takes `candidate{id,state_id}`, required `vacancy{id}`, `event{date,comment,user_login}`.
   Estaff `state_date` is the *transition* date, so the interview date for ТЗ 6.4 is read from candidate `events[]`
-  (`type_id` + `occurrence_id` of the lead state). Still to verify on the stand: the Twin autoCallCandidate URL
-  (`TWIN_AUTOCALL_CANDIDATE_URL`, with or without `/batch`).
+  (`type_id` + `occurrence_id` of the lead state).
+- Twin `POST telephony/autoCallCandidate` takes a single candidate object (`autoCallId`, `phone[]`, `variables`, `callbackData`,
+  `clientExternalId`, `forceStart`); the `batch: [...]` wrapper from ТЗ 4.6 is only for the legacy `/batch` endpoint and gives HTTP 400.
 
 ### Console Commands (`app/Console/Commands/`)
 - `HHAuth` / `HHMe` — OAuth flow and user info

@@ -324,6 +324,10 @@ class Twin
     /**
      * POST telephony/autoCallCandidate (ТЗ 4.6). clientExternalId protects the task from duplicates:
      * Twin answers 200 for a repeated phone and adds the candidate only once.
+     *
+     * Per Twin API reference the single-candidate endpoint takes the candidate object itself
+     * (autoCallId + phone required). The `batch: [...]` wrapper shown in ТЗ belongs to the
+     * legacy /batch endpoint; sending it here returns HTTP 400 and no candidate (seen in production).
      */
     public function addCandidateToAutoCall(
         string $autoCallId,
@@ -333,16 +337,12 @@ class Twin
         array $vars = []
     ): array {
         $data = [
-            'batch' => [
-                [
-                    'variables' => ['EStaffID' => $estaffId] + $vars,
-                    'callbackData' => ['EStaffID' => $estaffId],
-                    'autoCallId' => $autoCallId,
-                    'phone' => [$phone],
-                    'clientExternalId' => $clientExternalId ?? $phone,
-                    'forceStart' => true,
-                ],
-            ],
+            'autoCallId' => $autoCallId,
+            'phone' => [$phone],
+            'variables' => ['EStaffID' => $estaffId] + $vars,
+            'callbackData' => ['EStaffID' => $estaffId],
+            'clientExternalId' => $clientExternalId ?? $phone,
+            'forceStart' => true,
         ];
 
         $rid = $this->newRid();

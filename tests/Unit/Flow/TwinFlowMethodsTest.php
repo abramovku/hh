@@ -117,7 +117,8 @@ class TwinFlowMethodsTest extends FlowTestCase
         $twin->addCandidateToAutoCall('ac-1', '89001112233', '555', '79001112233');
 
         $this->assertSame(config('flow.urls.autocall_candidate'), (string) $this->history[0]['request']->getUri());
-        $item = $this->sentBody(0)['batch'][0];
+        $item = $this->sentBody(0);
+        $this->assertArrayNotHasKey('batch', $item); // single-candidate endpoint: the wrapper caused HTTP 400
         $this->assertSame(['EStaffID' => '555'], $item['variables']);
         $this->assertSame(['EStaffID' => '555'], $item['callbackData']);
         $this->assertSame('ac-1', $item['autoCallId']);
