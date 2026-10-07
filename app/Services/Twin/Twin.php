@@ -291,6 +291,7 @@ class Twin
             'additionalOptions' => [
                 'recordCall' => true,
                 'recTrimLeft' => true,
+                'useTr' => true,
                 'fullListMethod' => 'reject',
                 'fullListTime' => 13,
                 'detectRobot' => false,

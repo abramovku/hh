@@ -68,7 +68,7 @@ class TwinFlowMethodsTest extends FlowTestCase
         $this->assertSame('ПК - Теплый отклик - 17.07.2026', $body['name']);
         $this->assertSame(config('flow.tasks.warm.bot'), $body['defaultExecData']);
         $this->assertTrue($body['additionalOptions']['recTrimLeft']);
-        $this->assertArrayNotHasKey('useTr', $body['additionalOptions']);
+        $this->assertTrue($body['additionalOptions']['useTr']);
         $this->assertSame(36000, $body['additionalOptions']['allowCallTimeFrom']);
         $this->assertSame(79200, $body['additionalOptions']['allowCallTimeTo']);
         $this->assertSame('provider-1', $body['additionalOptions']['providerId']);
