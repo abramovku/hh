@@ -52,6 +52,9 @@ Twin webhooks (`OperateTwinWebhook`, `OperateTwinVoiceWebhook`) poll status and 
 ### Flow switch (`FLOW_MODE=legacy|new|hybrid`, `config/flow.php`)
 The routes `estaff-webhooks` and `twin-webhooks-voice` point to `FlowSwitchController` (validation) → `App\Services\Flow\FlowRouter`
 (the only place deciding legacy vs new) → `WebhookController::handleState()` (legacy, described above) or `FlowWebhookController::handleState()`.
+Before routing, `App\Services\Estaff\WebhookDeduplicator` drops repeated `candidate_state` webhooks in every mode: key = event type +
+`candidate_id` + `state_id` + `vacancy_id`, kept in the cache for `ESTAFF_WEBHOOK_DEDUP_TTL` seconds (default a week, `0` = off). Logged as
+`Webhook ignored: duplicate` in the `estaff` channel. The key is set on receipt, so a failed job is retried via `queue:retry`, not by a repeated webhook.
 - `hybrid`: new flow only for candidates whose Estaff vacancy id is in `FLOW_NEW_VACANCY_IDS`. States `new`/`47`/`48` are routed by
   `data.vacancy_id`; without it `ResolveVacancyAndRoute` reads `main_vacancy_id` from Estaff. Other states go to legacy (plus cancelling
   `interview_schedules`). Twin voice webhooks are routed by `botId` (new-flow bots) or `taskId`/`autoCallId` → `call_tasks.type`;

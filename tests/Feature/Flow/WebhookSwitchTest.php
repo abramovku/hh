@@ -77,6 +77,49 @@ class WebhookSwitchTest extends FlowTestCase
         Queue::assertNothingPushed();
     }
 
+    public function test_repeated_estaff_webhook_is_processed_once_within_the_dedup_ttl(): void
+    {
+        config(['services.estaff.webhook_dedup_ttl' => 604800]);
+
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+        Queue::assertPushed(StartFlowCall::class, 1);
+
+        // A different state, candidate or vacancy is a different webhook.
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_48'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47', 556))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47', 555, 43))->assertOk();
+        Queue::assertPushed(StartFlowCall::class, 4);
+
+        // Once the cache entry expires the same webhook is accepted again.
+        $this->travel(8)->days();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+        Queue::assertPushed(StartFlowCall::class, 5);
+    }
+
+    public function test_estaff_webhook_dedup_can_be_disabled(): void
+    {
+        config(['services.estaff.webhook_dedup_ttl' => 0]);
+
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_47'))->assertOk();
+
+        Queue::assertPushed(StartFlowCall::class, 2);
+    }
+
+    public function test_estaff_webhook_dedup_applies_to_legacy_mode_too(): void
+    {
+        config(['flow.mode' => 'legacy', 'services.estaff.webhook_dedup_ttl' => 604800]);
+
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_48'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', $this->estaffWebhook('event_type_48'))->assertOk();
+        $this->postJson('/api/estaff-webhooks', ['event_type' => 'test'])->assertOk();
+        $this->postJson('/api/estaff-webhooks', ['event_type' => 'test'])->assertOk();
+
+        Queue::assertPushed(StartTwinColdConversation::class, 1);
+    }
+
     public function test_legacy_mode_keeps_old_handlers(): void
     {
         config(['flow.mode' => 'legacy']);

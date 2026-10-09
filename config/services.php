@@ -45,6 +45,8 @@ return [
     'estaff' => [
         'url' => env('ESTAFF_API_URL'),
         'token' => env('ESTAFF_TOKEN'),
+        // Identical candidate_state webhooks (candidate + state + vacancy) are processed once per this many seconds (0 = off).
+        'webhook_dedup_ttl' => (int) env('ESTAFF_WEBHOOK_DEDUP_TTL', 604800),
     ],
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
