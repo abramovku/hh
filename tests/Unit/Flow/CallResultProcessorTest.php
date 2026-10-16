@@ -124,6 +124,48 @@ class CallResultProcessorTest extends FlowTestCase
         ]);
     }
 
+    public function test_analyse_results_as_json_string_are_decoded(): void
+    {
+        // Production analyse answer of 2026-10-15: `results` is a JSON string, not an object.
+        $results = json_encode([
+            'confirmation' => 'ПК_Лид',
+            'Дата_EStaff' => '2026-10-16T18:00',
+            'messagesAsString' => 'BOT: Алло',
+            'Вакансия_id_EStaff' => '7509471354710065867',
+            'Кандидат_id_EStaff' => '7696916956216631700',
+            'Вакансия_EStaff_Заказчик' => 'м-н Краснодар ТЦ Красная площадь',
+        ], JSON_UNESCAPED_UNICODE);
+        $this->mockTwin()->shouldReceive('findSessions')->once()->andReturn(['count' => 1, 'items' => [[
+            'currentStatusName' => 'ANSWERED', 'messagesAsString' => 'BOT: Алло CLIENT: завтра', 'results' => $results,
+        ]]]);
+        $estaff = $this->mockEstaff();
+        $estaff->shouldReceive('eventCandidate')->once()->with([
+            'candidate' => ['id' => 7696916956216631700, 'state_id' => 'event_type_49:scheduled'],
+            'vacancy' => ['id' => 7509471354710065867],
+            'event' => ['date' => '2026-10-16T18:00', 'comment' => 'BOT: Алло CLIENT: завтра', 'user_login' => 'м-н Краснодар ТЦ Красная площадь'],
+        ])->andReturn(['success' => true]);
+        $estaff->shouldReceive('getCandidate')->with(7696916956216631700)->once()->andReturn(['candidate' => ['mobile_phone' => '79952115664']]);
+
+        $result = app(CallResultProcessor::class)->process($this->callEnded(['callTo' => '79952115664', 'result' => []]));
+
+        $this->assertSame(CallResultProcessor::DONE, $result);
+        $this->assertDatabaseHas('interview_schedules', ['candidate_id' => 7696916956216631700, 'interview_date' => '2026-10-16']);
+    }
+
+    public function test_reminder_session_results_as_json_string_are_decoded(): void
+    {
+        $this->mockTwin()->shouldReceive('findSessions')->once()->andReturn(['items' => [[
+            'currentStatusName' => 'ANSWERED', 'messagesAsString' => 'CLIENT: не актуально',
+            'results' => json_encode(['confirmation' => 'ПК_Напоминание-Неактуально'], JSON_UNESCAPED_UNICODE),
+        ]]]);
+        $this->mockEstaff()->shouldReceive('setStateCandidate')->once()->with([
+            'candidate' => ['id' => 555, 'state_id' => 'event_type_46'],
+            'event' => ['comment' => 'CLIENT: не актуально'],
+        ]);
+
+        app(CallResultProcessor::class)->process($this->callEnded(['botId' => config('flow.tasks.reminder.bot'), 'result' => []]));
+    }
+
     public function test_lead_retries_add_event_without_user_login_on_error(): void
     {
         $this->mockTwin()->shouldReceive('findSessions')->once()->andReturn($this->analyseSession([

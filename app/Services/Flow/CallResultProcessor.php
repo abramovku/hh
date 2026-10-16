@@ -70,7 +70,7 @@ class CallResultProcessor
             return self::RETRY;
         }
 
-        $results = is_array($session['results'] ?? null) ? $session['results'] : [];
+        $results = $this->results($session);
         $confirmation = $results['confirmation'] ?? null;
 
         if (! is_scalar($confirmation) || $confirmation === '') {
@@ -109,7 +109,7 @@ class CallResultProcessor
             if ($session === null) {
                 return self::RETRY;
             }
-            $confirmation = $session['results']['confirmation'] ?? null;
+            $confirmation = $this->results($session)['confirmation'] ?? null;
             $confirmation = is_scalar($confirmation) && $confirmation !== '' ? (string) $confirmation : null;
             $comment = (string) ($session['messagesAsString'] ?? '');
         }
@@ -202,6 +202,22 @@ class CallResultProcessor
         $type = CallTask::whereIn('twin_id', $ids)->value('type');
 
         return is_string($type) && config("flow.tasks.$type") ? $type : null;
+    }
+
+    /**
+     * Bot results of an analyse session (ТЗ 5.3). Production analyse returns `results`
+     * as a JSON string (seen 2026-10-15), the ТЗ example shows an object: both are accepted.
+     */
+    private function results(array $session): array
+    {
+        $results = $session['results'] ?? null;
+
+        if (is_string($results)) {
+            $decoded = json_decode($results, true);
+            $results = is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($results) ? $results : [];
     }
 
     /**

@@ -69,7 +69,7 @@ New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
   stored in `call_tasks`, guarded by `Cache::lock` + unique `(date,type)`) → `addCandidateToAutoCall()` (with `clientExternalId`) → `event_type_88`.
   Cold calls also fill `location_id` via `CandidateLocationEnricher`; `EndpointController::create/update` do the same when the flag is on.
 - `ProcessCallEnded` / `CallResultProcessor` (ТЗ 5): task type by `botId`; not `ANSWERED` or old-script bot → `event_type_35`;
-  otherwise `Twin::findSessions()` → `results.confirmation` → `config('flow.confirmation_states')` (user-maintained table) or `LeadHandler`
+  otherwise `Twin::findSessions()` (ТЗ 5.3; the webhook's own `result` is deliberately not used; analyse returns `results` as a JSON *string*, decoded in `CallResultProcessor::results()`) → `results.confirmation` → `config('flow.confirmation_states')` (user-maintained table) or `LeadHandler`
   (`ПК_Лид` → `add_event` with `user_login`, retried without it). No session yet → delayed self-dispatch, not `release()`.
 - Leads are stored in `interview_schedules`; `app:flow-reminders` (every 15 min, 09:30–17:00 business tz) and `app:flow-feedback`
   add them to the `ПК_Напоминание {date}` / `ПК_ОС {date}` autoCalls. Any Estaff state other than `event_type_49*` cancels active rows.
