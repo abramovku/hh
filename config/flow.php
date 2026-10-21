@@ -43,6 +43,7 @@ return [
     | Twin autoCall task types. Key is stored in call_tasks.type.
     | {date} in the name is replaced using date_format (business timezone).
     | from/to — allowCallTimeFrom/To in seconds since midnight.
+    | redial — per-task overrides merged over Twin::redialStrategy() (ТЗ 4.3 strategy is the default).
     */
     'tasks' => [
         'warm' => [
@@ -76,9 +77,16 @@ return [
         'feedback' => [
             'name' => 'ПК_ОС {date}',
             'bot' => env('TWIN_BOT_FEEDBACK', '3d4c8b21-6924-424b-8430-0cf1aa14de6e'),
-            'from' => 34200,
-            'to' => 61200,
+            // ТЗ 6.6 (changed 2026-10-21): 15:30–18:00, every redial 2 h × 5.
+            'from' => 55800,
+            'to' => 64800,
             'date_format' => 'd.m',
+            'redial' => [
+                'busy' => ['redial' => true, 'time' => 7200, 'count' => 5],
+                'noAnswer' => ['redial' => true, 'time' => 7200, 'count' => 5],
+                'congestion' => ['redial' => true, 'time' => 7200, 'count' => 5],
+                'answerNoList' => ['redial' => true, 'time' => 7200, 'count' => 5],
+            ],
         ],
     ],
 

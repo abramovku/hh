@@ -299,7 +299,7 @@ class Twin
                 'allowCallTimeFrom' => (int) $task['from'],
                 'allowCallTimeTo' => (int) $task['to'],
             ],
-            'redialStrategyOptions' => $this->redialStrategy(),
+            'redialStrategyOptions' => array_replace_recursive($this->redialStrategy(), (array) ($task['redial'] ?? [])),
             'name' => Flow::taskName($taskKey, $date),
             'defaultExec' => 'robot',
             'secondExec' => 'ignore',

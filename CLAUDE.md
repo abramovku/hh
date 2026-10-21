@@ -72,7 +72,7 @@ New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
   otherwise `Twin::findSessions()` (ТЗ 5.3; the webhook's own `result` is deliberately not used; analyse returns `results` as a JSON *string*, decoded in `CallResultProcessor::results()`) → `results.confirmation` → `config('flow.confirmation_states')` (user-maintained table) or `LeadHandler`
   (`ПК_Лид` → `add_event` with `user_login`, retried without it). No session yet, or session still `INPROGRESS` without `results` (analyse needs minutes after `CALL_ENDED`) → delayed self-dispatch, not `release()`; `FLOW_ANALYSE_RETRY_DELAY` × `FLOW_ANALYSE_MAX_ATTEMPTS` is the wait window.
 - Leads are stored in `interview_schedules`; `app:flow-reminders` (every 15 min, 09:30–17:00 business tz) and `app:flow-feedback`
-  add them to the `ПК_Напоминание {date}` / `ПК_ОС {date}` autoCalls. Any Estaff state other than `event_type_49*` cancels active rows.
+  add them to the `ПК_Напоминание {date}` / `ПК_ОС {date}` autoCalls. Per-task call window and redial overrides live in `config('flow.tasks.*')` (`from`/`to`/`redial`); `ПК_ОС` is 15:30–18:00 with 2 h × 5 redials (ТЗ 6.6, 2026-10-21). Any Estaff state other than `event_type_49*` cancels active rows.
 - All "today"/window logic uses `Flow::timezone()` (`FLOW_TIMEZONE`, default Europe/Moscow); app timezone is UTC.
 - Estaff API confirmed (Websoft docs + DB dictionary https://office.datex.ru/download/5.1/EStaff_DB_51.htm): `candidate/find` → `candidates`,
   candidate `state_id` / `main_vacancy_id` / `location_id` (also accepted in `candidate/change` `changed_data`), vacancy `position_id`,

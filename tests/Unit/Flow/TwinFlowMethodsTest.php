@@ -101,6 +101,38 @@ class TwinFlowMethodsTest extends FlowTestCase
         $this->assertDatabaseHas('call_tasks', ['date' => '2026-07-17', 'type' => 'reminder']);
     }
 
+    public function test_feedback_auto_call_uses_its_own_window_and_redial_strategy(): void
+    {
+        $twin = $this->twin([$this->jsonResponse(['id' => ['identity' => 'ac-fb-1']])]);
+        $twin->getAutoCall('feedback', CarbonImmutable::parse('2026-07-18', 'Europe/Moscow'));
+
+        $body = $this->sentBody(0);
+        $this->assertSame('ПК_ОС 18.07', $body['name']);
+        $this->assertSame(55800, $body['additionalOptions']['allowCallTimeFrom']);
+        $this->assertSame(64800, $body['additionalOptions']['allowCallTimeTo']);
+
+        $redial = $body['redialStrategyOptions'];
+        $this->assertTrue($redial['redialStrategyEn']);
+        foreach (['busy', 'noAnswer', 'congestion', 'answerNoList'] as $reason) {
+            $this->assertSame(['redial' => true, 'time' => 7200, 'count' => 5], $redial[$reason], $reason);
+        }
+        $this->assertSame(['redial' => false], $redial['answerMash']);
+        $this->assertSame(['redial' => true, 'count' => 6], $redial['candidateLimit']);
+        $this->assertSame(['redial' => true, 'count' => 6], $redial['numberLimit']);
+    }
+
+    public function test_warm_auto_call_keeps_the_default_redial_strategy(): void
+    {
+        $twin = $this->twin([$this->jsonResponse(['id' => ['identity' => 'ac-w-1']])]);
+        $twin->getAutoCall('warm', CarbonImmutable::parse('2026-07-18', 'Europe/Moscow'));
+
+        $redial = $this->sentBody(0)['redialStrategyOptions'];
+        $this->assertSame(['redial' => true, 'time' => 1800, 'count' => 3], $redial['busy']);
+        $this->assertSame(['redial' => true, 'time' => 7200, 'count' => 5], $redial['noAnswer']);
+        $this->assertSame(['redial' => true, 'time' => 900, 'count' => 5], $redial['congestion']);
+        $this->assertSame(['redial' => true, 'time' => 3600, 'count' => 2], $redial['answerNoList']);
+    }
+
     public function test_get_auto_call_throws_when_twin_returns_no_id(): void
     {
         $twin = $this->twin([$this->jsonResponse(['error' => 'x'])]);
