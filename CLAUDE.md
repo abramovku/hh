@@ -70,7 +70,7 @@ New flow (`app/Services/Flow`, `app/Jobs/Flow`, `App\Support\Flow` helper):
   Cold calls also fill `location_id` via `CandidateLocationEnricher`; `EndpointController::create/update` do the same when the flag is on.
 - `ProcessCallEnded` / `CallResultProcessor` (ТЗ 5): task type by `botId`; not `ANSWERED` or old-script bot → `event_type_35`;
   otherwise `Twin::findSessions()` (ТЗ 5.3; the webhook's own `result` is deliberately not used; analyse returns `results` as a JSON *string*, decoded in `CallResultProcessor::results()`) → `results.confirmation` → `config('flow.confirmation_states')` (user-maintained table) or `LeadHandler`
-  (`ПК_Лид` → `add_event` with `user_login`, retried without it). No session yet → delayed self-dispatch, not `release()`.
+  (`ПК_Лид` → `add_event` with `user_login`, retried without it). No session yet, or session still `INPROGRESS` without `results` (analyse needs minutes after `CALL_ENDED`) → delayed self-dispatch, not `release()`; `FLOW_ANALYSE_RETRY_DELAY` × `FLOW_ANALYSE_MAX_ATTEMPTS` is the wait window.
 - Leads are stored in `interview_schedules`; `app:flow-reminders` (every 15 min, 09:30–17:00 business tz) and `app:flow-feedback`
   add them to the `ПК_Напоминание {date}` / `ПК_ОС {date}` autoCalls. Any Estaff state other than `event_type_49*` cancels active rows.
 - All "today"/window logic uses `Flow::timezone()` (`FLOW_TIMEZONE`, default Europe/Moscow); app timezone is UTC.

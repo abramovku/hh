@@ -24,7 +24,7 @@ class CallResultProcessor
 
     public const DONE = 'done';
 
-    /** Analyse has no session yet: the job should re-dispatch itself later. */
+    /** Analyse has no session or no results yet: the job should re-dispatch itself later. */
     public const RETRY = 'retry';
 
     public function __construct(
@@ -74,11 +74,13 @@ class CallResultProcessor
         $confirmation = $results['confirmation'] ?? null;
 
         if (! is_scalar($confirmation) || $confirmation === '') {
-            Log::channel('twin')->warning('flow call ended: session has no results.confirmation', [
-                'candidate_id' => $candidateId, 'session' => $session,
+            // Analyse answers within seconds of CALL_ENDED, but with currentStatusName INPROGRESS and empty
+            // results until the session is processed (seen 2026-10-20): treat it like a missing session.
+            Log::channel('twin')->info('flow call ended: session has no results.confirmation yet', [
+                'candidate_id' => $candidateId, 'currentStatusName' => $session['currentStatusName'] ?? null,
             ]);
 
-            return self::DONE;
+            return self::RETRY;
         }
 
         $resultCandidateId = (int) ($results['Кандидат_id_EStaff'] ?? 0) ?: $candidateId;
@@ -112,6 +114,14 @@ class CallResultProcessor
             $confirmation = $this->results($session)['confirmation'] ?? null;
             $confirmation = is_scalar($confirmation) && $confirmation !== '' ? (string) $confirmation : null;
             $comment = (string) ($session['messagesAsString'] ?? '');
+
+            if ($confirmation === null) {
+                Log::channel('twin')->info('flow reminder: session has no results.confirmation yet', [
+                    'candidate_id' => $candidateId, 'currentStatusName' => $session['currentStatusName'] ?? null,
+                ]);
+
+                return self::RETRY;
+            }
         }
 
         if ($confirmation === null) {

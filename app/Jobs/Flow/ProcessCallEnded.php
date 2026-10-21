@@ -9,8 +9,8 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Twin CALL_ENDED → CallResultProcessor. When Twin analyse has no session yet the job
- * re-dispatches itself with a delay (queue runs with --tries=1, so no release()).
+ * Twin CALL_ENDED → CallResultProcessor. When Twin analyse has no session or no results yet
+ * the job re-dispatches itself with a delay (queue runs with --tries=1, so no release()).
  */
 class ProcessCallEnded implements ShouldQueue
 {
@@ -32,7 +32,7 @@ class ProcessCallEnded implements ShouldQueue
         $maxAttempts = max(1, (int) config('flow.analyse.max_attempts', 3));
 
         if ($this->attempt >= $maxAttempts) {
-            Log::channel('app')->error('flow call ended: analyse session not found after all attempts', [
+            Log::channel('app')->error('flow call ended: analyse session has no results after all attempts', [
                 'attempts' => $this->attempt, 'webhook' => $this->webhook,
             ]);
 

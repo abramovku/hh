@@ -58,6 +58,29 @@ class CallResultProcessorTest extends FlowTestCase
         $this->assertSame(CallResultProcessor::RETRY, app(CallResultProcessor::class)->process($this->callEnded()));
     }
 
+    public function test_session_in_progress_without_results_requests_retry(): void
+    {
+        // Production 2026-10-20: analyse answered 20 s after CALL_ENDED with INPROGRESS and no results.
+        $this->mockTwin()->shouldReceive('findSessions')->once()->andReturn(['count' => 1, 'items' => [[
+            'currentStatusName' => 'INPROGRESS', 'messagesAsString' => 'BOT: Алло', 'results' => null,
+        ]]]);
+        $this->mockEstaff()->shouldNotReceive('setStateCandidate', 'eventCandidate');
+
+        $this->assertSame(CallResultProcessor::RETRY, app(CallResultProcessor::class)->process($this->callEnded()));
+    }
+
+    public function test_reminder_session_in_progress_without_results_requests_retry(): void
+    {
+        $this->mockTwin()->shouldReceive('findSessions')->once()->andReturn(['items' => [[
+            'currentStatusName' => 'INPROGRESS', 'messagesAsString' => '', 'results' => '',
+        ]]]);
+        $this->mockEstaff()->shouldNotReceive('setStateCandidate');
+
+        $result = app(CallResultProcessor::class)->process($this->callEnded(['botId' => config('flow.tasks.reminder.bot'), 'result' => []]));
+
+        $this->assertSame(CallResultProcessor::RETRY, $result);
+    }
+
     public function test_job_redispatches_itself_with_delay_until_max_attempts(): void
     {
         Queue::fake();

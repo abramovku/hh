@@ -85,11 +85,12 @@ return [
     // Seconds to wait after a brand-new autoCall is created before adding candidates (legacy did sleep(6)).
     'sleep_after_create' => (int) env('FLOW_SLEEP_AFTER_CREATE', 6),
 
-    // 5.3 — Twin analyse sessions lookup. Retried via delayed re-dispatch when no items are returned yet.
+    // 5.3 — Twin analyse sessions lookup. Retried via delayed re-dispatch while there is no session
+    // or the session is still INPROGRESS without results (analyse needs a few minutes after CALL_ENDED).
     'analyse' => [
         'fields' => 'messagesAsString,results,currentStatusName',
         'retry_delay' => (int) env('FLOW_ANALYSE_RETRY_DELAY', 60),
-        'max_attempts' => (int) env('FLOW_ANALYSE_MAX_ATTEMPTS', 3),
+        'max_attempts' => (int) env('FLOW_ANALYSE_MAX_ATTEMPTS', 15),
     ],
 
     'lead_confirmation' => 'ПК_Лид',
